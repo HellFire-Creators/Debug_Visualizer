@@ -14,8 +14,8 @@ public class DebugAreaOptions {
     private DebugColor outlineColor;
     @NotApplicable(implementation = "vanilla") private DebugColor fillColor;
     @NotApplicable(implementation = "vanilla") private DebugColor textColor;
-    @NotApplicable(implementation = "vanilla") private String text = null;
-    @Getter @NotApplicable(implementation = "vanilla") @Range(from = 0, to = 1) private Float alpha = ((float) DebugColor.STD_ALPHA_VAL);
+    @Getter @NotApplicable(implementation = "vanilla") private String text = "";
+    @Getter @NotApplicable(implementation = "vanilla") @Range(from = 0, to = 1) private Float alpha = 1.0f;
 
     private DebugAreaOptions() { }
 
@@ -109,11 +109,6 @@ public class DebugAreaOptions {
     public DebugColor getTextColor() {
         if (textColor == null) return getOutlineColor();
         return textColor;
-    }
-
-    @NotNull
-    public String getText() {
-        return (text == null) ? "" : text;
     }
 
     public DebugAreaOptions clone() {
