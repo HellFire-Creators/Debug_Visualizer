@@ -21,6 +21,10 @@ public interface IDebugVisualizer {
      */
     VisualizerElement createBlock(final @NotNull Vec position, final @Nullable DebugColorOptions options);
 
+    default VisualizerElement createBlock(final @NotNull Vec position) {
+        return createBlock(position, null);
+    }
+
     /**
      * Creates an area marker between two specified corners.
      *
@@ -30,6 +34,10 @@ public interface IDebugVisualizer {
      * @return a VisualizerElement representing the area marker
      */
     VisualizerElement createArea(final @NotNull Vec cornerA, final @NotNull Vec cornerB, final @Nullable DebugAreaOptions options);
+
+    default VisualizerElement createArea(final @NotNull Vec cornerA, final @NotNull Vec cornerB) {
+        return createArea(cornerA, cornerB, null);
+    }
 
 
     /**
@@ -43,6 +51,10 @@ public interface IDebugVisualizer {
      */
     VisualizerElement createPlane(final @NotNull Direction dir, final @NotNull Vec cornerA, final @NotNull Vec cornerB, final @Nullable DebugAreaOptions options);
 
+    default VisualizerElement createPlane(final @NotNull Direction dir, final @NotNull Vec cornerA, final @NotNull Vec cornerB) {
+        return createPlane(dir, cornerA, cornerB, null);
+    }
+
     /**
      * Creates a line between two specified positions.
      *
@@ -52,4 +64,8 @@ public interface IDebugVisualizer {
      * @return a VisualizerElement representing the line marker
      */
     VisualizerElement createLine(final @NotNull Vec posA, final @NotNull Vec posB, final @Nullable DebugColorOptions options);
+
+    default VisualizerElement createLine(final @NotNull Vec posA, final @NotNull Vec posB) {
+        return createLine(posA, posB, null);
+    }
 }
