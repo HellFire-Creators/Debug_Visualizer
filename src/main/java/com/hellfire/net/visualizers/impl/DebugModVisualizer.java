@@ -35,7 +35,7 @@ public class DebugModVisualizer implements IDebugVisualizer {
                 "%s-%s:%s",
                 typeName,
                 UUID.randomUUID(),
-                "DEBUG_VIS"
+                "debug_vis"
         ));
     }
 
