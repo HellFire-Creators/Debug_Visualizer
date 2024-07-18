@@ -1,7 +1,6 @@
 package com.hellfire.net.visualizers.impl;
 
-import com.hellfire.net.options.DebugAreaOptions;
-import com.hellfire.net.options.DebugColorOptions;
+import com.hellfire.net.options.impl.DebugModOptions;
 import com.hellfire.net.visualizers.IDebugVisualizer;
 import com.hellfire.net.visualizers.VisualizerElement;
 import com.mattworzala.debug.DebugMessage;
@@ -23,7 +22,7 @@ import java.util.UUID;
  * methods for drawing visual elements in mattw's debug mod. It generates random
  * colors and NamespaceIDs for each drawn element.
  */
-public class DebugModVisualizer implements IDebugVisualizer {
+public class DebugModVisualizer implements IDebugVisualizer<DebugModOptions> {
 
     /**
      * Generates a random NamespaceID based on the given typeName. <br>
@@ -40,8 +39,8 @@ public class DebugModVisualizer implements IDebugVisualizer {
     }
 
     @Override
-    public VisualizerElement createLine(@NotNull Vec posA, @NotNull Vec posB, @Nullable DebugColorOptions options) {
-        final DebugColorOptions op = (options == null) ? DebugColorOptions.createStd() : options;
+    public VisualizerElement createLine(@NotNull Vec posA, @NotNull Vec posB, @Nullable DebugModOptions options) {
+        final DebugModOptions op = (options == null) ? DebugModOptions.createStd() : options;
 
         return new VisualizerElement() {
             private final NamespaceID ns = getRandomNamespaceID("line");
@@ -64,8 +63,8 @@ public class DebugModVisualizer implements IDebugVisualizer {
     }
 
     @Override
-    public VisualizerElement createBlock(@NotNull Vec position, @Nullable DebugColorOptions options) {
-        final DebugColorOptions op = (options == null) ? DebugColorOptions.createStd() : options;
+    public VisualizerElement createBlock(@NotNull Vec position, @Nullable DebugModOptions options) {
+        final DebugModOptions op = (options == null) ? DebugModOptions.createStd() : options;
 
         return new VisualizerElement() {
             private final NamespaceID ns = getRandomNamespaceID("block");
@@ -88,8 +87,8 @@ public class DebugModVisualizer implements IDebugVisualizer {
     }
 
     @Override
-    public VisualizerElement createArea(@NotNull Vec cornerA, @NotNull Vec cornerB, @Nullable DebugAreaOptions options) {
-        final DebugAreaOptions op = (options == null) ? DebugAreaOptions.createStd() : options;
+    public VisualizerElement createArea(@NotNull Vec cornerA, @NotNull Vec cornerB, @Nullable DebugModOptions options) {
+        final DebugModOptions op = (options == null) ? DebugModOptions.createStd() : options;
 
         return new VisualizerElement() {
             private final NamespaceID ns = getRandomNamespaceID("area");
@@ -97,8 +96,8 @@ public class DebugModVisualizer implements IDebugVisualizer {
             @Override
             public void draw(@NotNull Player player) {
                 final OutlineBox.Builder builder = new OutlineBox.Builder()
-                        .colorLine(op.getOutlineColor().getHexCode(op.getAlpha()))
-                        .color(op.getFillColor().getHexCode(op.getAlpha()))
+                        .colorLine(op.getColor().getHexCode(op.getAlpha()))
+                        .color(op.getColor().getHexCode(op.getAlpha()))
                         .colorText(op.getTextColor().getHexCode())
                         .text(op.getText())
                         .start(cornerA)
@@ -115,8 +114,8 @@ public class DebugModVisualizer implements IDebugVisualizer {
     }
 
     @Override
-    public VisualizerElement createPlane(@NotNull Direction dir, @NotNull Vec cornerA, @NotNull Vec cornerB, @Nullable DebugAreaOptions options) {
-        final DebugAreaOptions op = (options == null) ? DebugAreaOptions.createStd() : options;
+    public VisualizerElement createPlane(@NotNull Direction dir, @NotNull Vec cornerA, @NotNull Vec cornerB, @Nullable DebugModOptions options) {
+        final DebugModOptions op = (options == null) ? DebugModOptions.createStd() : options;
         final Vec otherCorner = switch (dir) {
             case EAST, WEST ->      cornerB.withX(cornerA.x());
             case UP, DOWN ->        cornerB.withY(cornerA.y());
@@ -129,8 +128,8 @@ public class DebugModVisualizer implements IDebugVisualizer {
             @Override
             public void draw(@NotNull Player player) {
                 final OutlineBox.Builder builder = new OutlineBox.Builder()
-                        .colorLine(op.getOutlineColor().getHexCode())
-                        .color(op.getFillColor().getHexCode(op.getAlpha()))
+                        .colorLine(op.getColor().getHexCode())
+                        .color(op.getColor().getHexCode(op.getAlpha()))
                         .colorText(op.getTextColor().getHexCode())
                         .text(op.getText())
                         .start(cornerA)

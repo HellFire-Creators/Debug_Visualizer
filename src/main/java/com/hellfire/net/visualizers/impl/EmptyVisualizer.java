@@ -1,7 +1,6 @@
 package com.hellfire.net.visualizers.impl;
 
-import com.hellfire.net.options.DebugAreaOptions;
-import com.hellfire.net.options.DebugColorOptions;
+import com.hellfire.net.options.ImplOptions;
 import com.hellfire.net.visualizers.IDebugVisualizer;
 import com.hellfire.net.visualizers.VisualizerElement;
 import net.minestom.server.coordinate.Vec;
@@ -11,7 +10,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /* Created by Conor on 16.07.2024 */
-public class EmptyVisualizer implements IDebugVisualizer {
+public class EmptyVisualizer implements IDebugVisualizer<EmptyVisualizer.EmptyOptions> {
 
     private static final VisualizerElement EMPTY = new VisualizerElement() {
         @Override
@@ -22,22 +21,24 @@ public class EmptyVisualizer implements IDebugVisualizer {
     };
 
     @Override
-    public VisualizerElement createBlock(@NotNull Vec position, @Nullable DebugColorOptions options) {
+    public VisualizerElement createBlock(@NotNull Vec position, @Nullable EmptyVisualizer.EmptyOptions options) {
         return EMPTY;
     }
 
     @Override
-    public VisualizerElement createArea(@NotNull Vec cornerA, @NotNull Vec cornerB, @Nullable DebugAreaOptions options) {
+    public VisualizerElement createArea(@NotNull Vec cornerA, @NotNull Vec cornerB, @Nullable EmptyVisualizer.EmptyOptions options) {
         return EMPTY;
     }
 
     @Override
-    public VisualizerElement createPlane(@NotNull Direction dir, @NotNull Vec cornerA, @NotNull Vec cornerB, @Nullable DebugAreaOptions options) {
+    public VisualizerElement createPlane(@NotNull Direction dir, @NotNull Vec cornerA, @NotNull Vec cornerB, @Nullable EmptyVisualizer.EmptyOptions options) {
         return EMPTY;
     }
 
     @Override
-    public VisualizerElement createLine(@NotNull Vec posA, @NotNull Vec posB, @Nullable DebugColorOptions options) {
+    public VisualizerElement createLine(@NotNull Vec posA, @NotNull Vec posB, @Nullable EmptyVisualizer.EmptyOptions options) {
         return EMPTY;
     }
+
+    public static final class EmptyOptions implements ImplOptions { }
 }

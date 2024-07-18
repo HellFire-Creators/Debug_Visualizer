@@ -1,14 +1,13 @@
 package com.hellfire.net.visualizers;
 
-import com.hellfire.net.options.DebugAreaOptions;
-import com.hellfire.net.options.DebugColorOptions;
+import com.hellfire.net.options.ImplOptions;
 import com.hellfire.net.visualizers.impl.EmptyVisualizer;
 import net.minestom.server.coordinate.Vec;
 import net.minestom.server.utils.Direction;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public interface IDebugVisualizer {
+public interface IDebugVisualizer<I extends ImplOptions> {
 
     IDebugVisualizer STD_VISUALIZER = new EmptyVisualizer();
 
@@ -19,7 +18,7 @@ public interface IDebugVisualizer {
      * @param options  the optional debug block options
      * @return a VisualizerElement representing the block marker
      */
-    VisualizerElement createBlock(final @NotNull Vec position, final @Nullable DebugColorOptions options);
+    VisualizerElement createBlock(final @NotNull Vec position, final @Nullable I options);
 
     default VisualizerElement createBlock(final @NotNull Vec position) {
         return createBlock(position, null);
@@ -33,7 +32,7 @@ public interface IDebugVisualizer {
      * @param options  the optional debug area options
      * @return a VisualizerElement representing the area marker
      */
-    VisualizerElement createArea(final @NotNull Vec cornerA, final @NotNull Vec cornerB, final @Nullable DebugAreaOptions options);
+    VisualizerElement createArea(final @NotNull Vec cornerA, final @NotNull Vec cornerB, final @Nullable I options);
 
     default VisualizerElement createArea(final @NotNull Vec cornerA, final @NotNull Vec cornerB) {
         return createArea(cornerA, cornerB, null);
@@ -49,7 +48,7 @@ public interface IDebugVisualizer {
      * @param options   the optional debug area options
      * @return a VisualizerElement representing the plane marker
      */
-    VisualizerElement createPlane(final @NotNull Direction dir, final @NotNull Vec cornerA, final @NotNull Vec cornerB, final @Nullable DebugAreaOptions options);
+    VisualizerElement createPlane(final @NotNull Direction dir, final @NotNull Vec cornerA, final @NotNull Vec cornerB, final @Nullable I options);
 
     default VisualizerElement createPlane(final @NotNull Direction dir, final @NotNull Vec cornerA, final @NotNull Vec cornerB) {
         return createPlane(dir, cornerA, cornerB, null);
@@ -63,7 +62,7 @@ public interface IDebugVisualizer {
      * @param options  the optional debug block options
      * @return a VisualizerElement representing the line marker
      */
-    VisualizerElement createLine(final @NotNull Vec posA, final @NotNull Vec posB, final @Nullable DebugColorOptions options);
+    VisualizerElement createLine(final @NotNull Vec posA, final @NotNull Vec posB, final @Nullable I options);
 
     default VisualizerElement createLine(final @NotNull Vec posA, final @NotNull Vec posB) {
         return createLine(posA, posB, null);
