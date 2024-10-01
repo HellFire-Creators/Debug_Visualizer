@@ -1,7 +1,7 @@
-package com.hellfire.net.visualizers;
+package com.hellfire.net.debug_visualizer.visualizers;
 
 
-import com.hellfire.net.VisualSupervisor;
+import com.hellfire.net.debug_visualizer.VisualSupervisor;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 

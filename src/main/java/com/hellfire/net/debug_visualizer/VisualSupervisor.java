@@ -1,7 +1,8 @@
-package com.hellfire.net;
+package com.hellfire.net.debug_visualizer;
 
-import com.hellfire.net.visualizers.IDebugVisualizer;
-import com.hellfire.net.visualizers.VisualizerElementCollection;
+import com.hellfire.net.debug_visualizer.visualizers.IDebugVisualizer;
+import com.hellfire.net.debug_visualizer.visualizers.SingleVisualizerElementCollection;
+import com.hellfire.net.debug_visualizer.visualizers.VisualizerElementCollection;
 import lombok.Getter;
 import lombok.Setter;
 import net.minestom.server.entity.Player;
@@ -10,7 +11,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
@@ -18,7 +18,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
  * Used for managing the elements a Player can currently see. <br>
  * If you have already implemented a custom implementation of {@link net.minestom.server.entity.Player}, then implement this interface;
  * Otherwise use {@link STD}. However, keep in mind that you will have to keep the reference to the object if visuals
- * like {@link com.hellfire.net.visualizers.SingleVisualizerElementCollection} should work correctly!
+ * like {@link SingleVisualizerElementCollection} should work correctly!
  */
 /* Created by Conor on 16.07.2024 */
 public interface VisualSupervisor {
@@ -65,13 +65,17 @@ public interface VisualSupervisor {
         @Getter @Setter private IDebugVisualizer visualizer;
         private final Player player;
 
-        public STD(@NotNull Player player, @NotNull IDebugVisualizer visualizer) {
+        private STD(@NotNull Player player, @NotNull IDebugVisualizer visualizer) {
             this.player = player;
             this.visualizer = visualizer;
         }
 
-        public STD(@NotNull Player player) {
-            this(player, IDebugVisualizer.STD_VISUALIZER);
+        public static STD create(@NotNull Player player, @NotNull IDebugVisualizer visualizer) {
+            return new STD(player, visualizer);
+        }
+
+        public static STD create(@NotNull Player player) {
+            return create(player, IDebugVisualizer.STD_VISUALIZER);
         }
 
         @Override

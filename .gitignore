@@ -6,6 +6,7 @@ target/
 ### IntelliJ IDEA ###
 .idea/modules.xml
 .idea/jarRepositories.xml
+.idea/codeStyles/
 .idea/compiler.xml
 .idea/libraries/
 .idea/material_theme_project_new.xml
@@ -38,3 +39,6 @@ build/
 
 ### Mac OS ###
 .DS_Store
+
+### User specific ###
+out/

@@ -1,4 +1,4 @@
-package com.hellfire.net.options;
+package com.hellfire.net.debug_visualizer.options;
 
 /**
  * This interface represents options that are present in specific implementations.
