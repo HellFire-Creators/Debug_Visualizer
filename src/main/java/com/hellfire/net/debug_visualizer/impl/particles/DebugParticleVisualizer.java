@@ -22,52 +22,49 @@ public class DebugParticleVisualizer implements IDebugVisualizer {
 
     @Override
     public VisualizerElement createBlock(@NotNull Vec position) {
+
+    @Override
+    public VisualizerElement createArea(@NotNull Vec cornerA, @NotNull Vec cornerB) {
         return new VisualizerElement() {
             private Task task;
 
             @Override
-            public void draw(@NotNull Player player) {
-                final DebugParticleOptions op = (DebugParticleOptions) options.computeIfAbsent(DebugParticleOptions.class, (k) -> DebugParticleOptions.getStd());
-                final Vec cA = position, cB = position.add(1, 0, 1), cC = position.add(1, 1, 0), cD = position.add(0, 1, 1);
+            protected void draw(@NotNull Player player) {
+                final Vec offset = cornerB.sub(cornerA);
 
                 final Vec[][] allPositions = {
-                        calcParticlePositions(cA, cA.add(1, 0, 0), op),
-                        calcParticlePositions(cA, cA.add(0, 1, 0), op),
-                        calcParticlePositions(cA, cA.add(0, 0, 1), op),
+                        calcParticlePositions(cornerA, cornerA.add(offset.x(), 0, 0), op),
+                        calcParticlePositions(cornerA, cornerA.add(0, offset.y(),0), op),
+                        calcParticlePositions(cornerA, cornerA.add(0, 0, offset.z()), op),
 
-                        calcParticlePositions(cB, cB.add(-1, 0, 0), op),
-                        calcParticlePositions(cB, cB.add(0, 1, 0), op),
-                        calcParticlePositions(cB, cB.add(0, 0, -1), op),
+                        calcParticlePositions(cornerB, cornerB.sub(offset.x(), 0, 0), op),
+                        calcParticlePositions(cornerB, cornerB.sub(0, offset.y(), 0), op),
+                        calcParticlePositions(cornerB, cornerB.sub(0, 0, offset.z()), op),
 
-                        calcParticlePositions(cC, cC.add(-1, 0, 0), op),
-                        calcParticlePositions(cC, cC.add(0, -1, 0), op),
-                        calcParticlePositions(cC, cC.add(0, 0, 1), op),
-
-                        calcParticlePositions(cD, cD.add(1, 0, 0), op),
-                        calcParticlePositions(cD, cD.add(0, -1, 0), op),
-                        calcParticlePositions(cD, cD.add(0, 0, -1), op),
+                        calcParticlePositions(cornerA.add(offset.x(), 0, 0), cornerB.sub(0, offset.y(), 0), op),
+                        calcParticlePositions(cornerA.add(offset.x(), 0, 0), cornerB.sub(0, 0, offset.z()), op),
+                        calcParticlePositions(cornerA.add(0, offset.y(), 0), cornerB.sub(0, 0, offset.z()), op),
+                        calcParticlePositions(cornerA.add(0, offset.y(), 0), cornerB.sub(offset.x(), 0, 0), op),
+                        calcParticlePositions(cornerA.add(0, 0, offset.z()), cornerB.sub(0, offset.y(), 0), op),
+                        calcParticlePositions(cornerA.add(0, 0, offset.z()), cornerB.sub(offset.x(), 0, 0), op),
                 };
 
-                final List<ParticlePacket> particles = Arrays.stream(allPositions)
+                final ParticlePacket[] particles = Arrays.stream(allPositions)
                         .flatMap(Arrays::stream)
                         .map((vec) -> convertToPacket(vec, op))
-                        .toList();
+                        .toArray(ParticlePacket[]::new);
 
-                task = startParticleScheduler(player, particles.toArray(ParticlePacket[]::new));
+                task = startParticleScheduler(player, particles);
             }
 
             @Override
-            public void clear(@NotNull Player player) {
+            protected void clear(@NotNull Player player) {
                 if (task == null) return;
                 task.cancel();
             }
         };
     }
 
-    @Override
-    public VisualizerElement createArea(@NotNull Vec cornerA, @NotNull Vec cornerB) {
-        return null;
-    }
 
     @Override
     public VisualizerElement createPlane(@NotNull Direction dir, @NotNull Vec cornerA, @NotNull Vec cornerB) {
@@ -81,7 +78,7 @@ public class DebugParticleVisualizer implements IDebugVisualizer {
 
             @Override
             public void draw(@NotNull Player player) {
-                final DebugParticleOptions op = (DebugParticleOptions) options.computeIfAbsent(DebugParticleOptions.class, (k) -> DebugParticleOptions.getStd());
+                final DebugParticleOptions op = (DebugParticleOptions) options.computeIfAbsent(DebugParticleOptions.class, (k) -> DebugParticleOptions.createStd());
                 final ParticlePacket[] particles = Arrays.stream(calcParticlePositions(posA, posB, op))
                         .map((vec) -> convertToPacket(vec, op))
                         .toArray(ParticlePacket[]::new);

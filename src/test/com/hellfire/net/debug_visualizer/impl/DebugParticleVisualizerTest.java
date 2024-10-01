@@ -65,6 +65,11 @@ public class DebugParticleVisualizerTest {
                 .withConfig(DebugParticleOptions.class, DebugParticleOptions.createWithColor(DebugColor.DARK_RED))
                 .toCollection()
                 .draw(VisualSupervisor.STD.create(player));
+
+        visualizer.createArea(new Vec(5, 45, 5), new Vec(10, 50, 10))
+                .withConfig(DebugParticleOptions.class, DebugParticleOptions.createWithDensity(0.1))
+                .toCollection()
+                .draw(VisualSupervisor.STD.create(player));
     }
 
 }
