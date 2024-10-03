@@ -1,6 +1,6 @@
 package com.hellfire.net.debug_visualizer;
 
-import com.hellfire.net.debug_visualizer.visualizers.IDebugVisualizer;
+import com.hellfire.net.debug_visualizer.visualizers.DebugVisualizer;
 import com.hellfire.net.debug_visualizer.visualizers.SingleVisualizerElementCollection;
 import com.hellfire.net.debug_visualizer.visualizers.VisualizerElementCollection;
 import lombok.Getter;
@@ -31,7 +31,7 @@ public interface VisualSupervisor {
     /**
      * @return Type of visualizer
      */
-    IDebugVisualizer getVisualizer();
+    DebugVisualizer getVisualizer();
 
     /**
      * @return Currently displayed visuals
@@ -62,20 +62,16 @@ public interface VisualSupervisor {
 
         // Conor-16.07.2024: Concurrent, just in case
         private final Queue<VisualizerElementCollection> visibleElements = new ConcurrentLinkedQueue<>();
-        @Getter @Setter private IDebugVisualizer visualizer;
+        @Getter @Setter private DebugVisualizer visualizer;
         private final Player player;
 
-        private STD(@NotNull Player player, @NotNull IDebugVisualizer visualizer) {
+        private STD(@NotNull Player player, @NotNull DebugVisualizer visualizer) {
             this.player = player;
             this.visualizer = visualizer;
         }
 
-        public static STD create(@NotNull Player player, @NotNull IDebugVisualizer visualizer) {
+        public static STD create(@NotNull Player player, @NotNull DebugVisualizer visualizer) {
             return new STD(player, visualizer);
-        }
-
-        public static STD create(@NotNull Player player) {
-            return create(player, IDebugVisualizer.STD_VISUALIZER);
         }
 
         @Override

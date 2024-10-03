@@ -16,7 +16,7 @@ public class SingleVisualizerElementCollection extends VisualizerElementCollecti
 
     private final String name;  // A name to identify vis collections from another
 
-    protected SingleVisualizerElementCollection(List<VisualizerElement> elements, String name) {
+    protected SingleVisualizerElementCollection(List<Shape> elements, String name) {
         super(elements);
         this.name = name;
     }

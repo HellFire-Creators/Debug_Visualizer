@@ -12,15 +12,13 @@ import java.util.Map;
  */
 public abstract class VisualizerElement {
 
-    protected final Map<Class<? extends ImplOptions>, ImplOptions> options = new HashMap<>();
-
     /**
      * It is discouraged to call this function manually. Use a {@link VisualizerElementCollection} instead. <br>
      * If you manually call this function, you also have to manually call {@link #clear(Player)} as well.
      *
      * @param player Player to display the debug element to
      */
-    protected abstract void draw(final @NotNull Player player);
+    protected abstract void draw(final @NotNull Player player, final ImplOptions<?> options);
 
     /**
      * Clears the visual element from the players view.
@@ -29,20 +27,4 @@ public abstract class VisualizerElement {
      */
     protected abstract void clear(final @NotNull Player player);
 
-    public <T extends ImplOptions> VisualizerElement withConfig(Class<T> clazz, T config) {
-        options.put(clazz, config);
-        return this;
-    }
-
-    public VisualizerElementCollection toCollection() {
-        return VisualizerElementCollection.builder()
-                .addElement(this)
-                .build();
-    }
-
-    public SingleVisualizerElementCollection toSingleVisCollection(final @NotNull String key) {
-        return VisualizerElementCollection.builder()
-                .addElement(this)
-                .buildSingleVis(key);
-    }
 }

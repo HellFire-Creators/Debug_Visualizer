@@ -1,6 +1,7 @@
 package com.hellfire.net.debug_visualizer.impl.particles;
 
-import com.hellfire.net.debug_visualizer.visualizers.IDebugVisualizer;
+import com.hellfire.net.debug_visualizer.options.ImplOptions;
+import com.hellfire.net.debug_visualizer.visualizers.DebugVisualizer;
 import com.hellfire.net.debug_visualizer.visualizers.VisualizerElement;
 import net.minestom.server.MinecraftServer;
 import net.minestom.server.coordinate.Vec;
@@ -9,19 +10,19 @@ import net.minestom.server.network.packet.server.play.ParticlePacket;
 import net.minestom.server.particle.Particle;
 import net.minestom.server.timer.Task;
 import net.minestom.server.timer.TaskSchedule;
-import net.minestom.server.utils.Direction;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
-import java.util.List;
 
 /* Created by Conor on 20.07.2024 */
-public class DebugParticleVisualizer implements IDebugVisualizer {
+public class DebugParticleVisualizer extends DebugVisualizer {
 
     private static final int PARTICLE_LIFE_DURATION = 5;    // Time until new particles are spawned, in ticks
 
     @Override
     public VisualizerElement createBlock(@NotNull Vec position) {
+        return createArea(position, position.add(1, 1, 1));
+    }
 
     @Override
     public VisualizerElement createArea(@NotNull Vec cornerA, @NotNull Vec cornerB) {
@@ -29,7 +30,8 @@ public class DebugParticleVisualizer implements IDebugVisualizer {
             private Task task;
 
             @Override
-            protected void draw(@NotNull Player player) {
+            protected void draw(@NotNull Player player, ImplOptions<?> option) {
+                final DebugParticleOptions op = (DebugParticleOptions) option;
                 final Vec offset = cornerB.sub(cornerA);
 
                 final Vec[][] allPositions = {
@@ -65,10 +67,35 @@ public class DebugParticleVisualizer implements IDebugVisualizer {
         };
     }
 
-
     @Override
-    public VisualizerElement createPlane(@NotNull Direction dir, @NotNull Vec cornerA, @NotNull Vec cornerB) {
-        return null;
+    public VisualizerElement createPlaneImpl(@NotNull Vec cornerA, @NotNull Vec cornerB, @NotNull Vec cornerC, @NotNull Vec cornerD) {
+        return new VisualizerElement() {
+            private Task task;
+
+            @Override
+            protected void draw(@NotNull Player player, ImplOptions<?> option) {
+                final DebugParticleOptions op = (DebugParticleOptions) option;
+                final Vec[][] allPositions = {
+                        calcParticlePositions(cornerA, cornerB, op),
+                        calcParticlePositions(cornerB, cornerC, op),
+                        calcParticlePositions(cornerC, cornerD, op),
+                        calcParticlePositions(cornerA, cornerD, op),
+                };
+
+                final ParticlePacket[] particles = Arrays.stream(allPositions)
+                        .flatMap(Arrays::stream)
+                        .map((vec) -> convertToPacket(vec, op))
+                        .toArray(ParticlePacket[]::new);
+
+                task = startParticleScheduler(player, particles);
+            }
+
+            @Override
+            public void clear(@NotNull Player player) {
+                if (task == null) return;
+                task.cancel();
+            }
+        };
     }
 
     @Override
@@ -77,8 +104,8 @@ public class DebugParticleVisualizer implements IDebugVisualizer {
             private Task task;
 
             @Override
-            public void draw(@NotNull Player player) {
-                final DebugParticleOptions op = (DebugParticleOptions) options.computeIfAbsent(DebugParticleOptions.class, (k) -> DebugParticleOptions.createStd());
+            protected void draw(@NotNull Player player, ImplOptions<?> option) {
+                final DebugParticleOptions op = (DebugParticleOptions) option;
                 final ParticlePacket[] particles = Arrays.stream(calcParticlePositions(posA, posB, op))
                         .map((vec) -> convertToPacket(vec, op))
                         .toArray(ParticlePacket[]::new);
@@ -92,6 +119,11 @@ public class DebugParticleVisualizer implements IDebugVisualizer {
                 task.cancel();
             }
         };
+    }
+
+    @Override
+    public Class<? extends ImplOptions<?>> getOptionsClass() {
+        return DebugParticleOptions.class;
     }
 
     ///////////////////////////////////////////////////////////////////////////
@@ -129,8 +161,12 @@ public class DebugParticleVisualizer implements IDebugVisualizer {
     }
 
     private static @NotNull ParticlePacket convertToPacket(Vec vec, DebugParticleOptions op) {
-        final Particle dus = Particle.DUST.withColor(op.getColor().asRGBLike());
-        return new ParticlePacket(dus, vec.x(), vec.y(), vec.z(), 0, 0, 0, 0, 1);
+        if (op.getParticle().id() == Particle.DUST.id()) {
+            final Particle dus = Particle.DUST.withColor(op.getColor().asRGBLike());
+            return new ParticlePacket(dus, vec.x(), vec.y(), vec.z(), 0, 0, 0, 0, 1);
+        }
+
+        return new ParticlePacket(op.getParticle(), vec.x(), vec.y(), vec.z(), 0, 0, 0, 0, 1);
     }
 
 }

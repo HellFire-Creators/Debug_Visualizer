@@ -1,11 +1,16 @@
 package com.hellfire.net.debug_visualizer.visualizers;
 
 import com.hellfire.net.debug_visualizer.VisualSupervisor;
+import com.hellfire.net.debug_visualizer.options.ImplOptions;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
+import java.lang.reflect.Constructor;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * The VisualizerElementCollection class represents a collection of VisualizerElement objects.
@@ -15,23 +20,29 @@ import java.util.List;
  */
 public class VisualizerElementCollection {
 
-    private final List<VisualizerElement> elements;
+    private final List<Shape> elements;
 
-    protected VisualizerElementCollection(List<VisualizerElement> elements) {
+    protected VisualizerElementCollection(List<Shape> elements) {
         this.elements = List.copyOf(elements);
     }
 
     public void draw(final @NotNull VisualSupervisor supervisor) {
-        elements.forEach((e) -> e.draw(supervisor.getPlayer()));
+        elements.forEach((e) -> {
+            final Class<? extends ImplOptions<?>> optionsClass = supervisor.getVisualizer().getOptionsClass();
+            final ImplOptions<?> option = e.optionsMap.computeIfAbsent(optionsClass, (k) -> createStdOption(optionsClass));
+
+            if (option == null) throw new RuntimeException("Could not instantiate a default visualizer option for " + optionsClass.getSimpleName());
+            e.visFunc.apply(supervisor.getVisualizer()).draw(supervisor.getPlayer(), option);
+        });
         supervisor.addVisibleElements(this);
     }
 
     public void clear(final @NotNull VisualSupervisor supervisor) {
-        elements.forEach((e) -> e.clear(supervisor.getPlayer()));
+        elements.forEach((e) -> e.visFunc.apply(supervisor.getVisualizer()).clear(supervisor.getPlayer()));
         supervisor.removeVisibleElements(this);
     }
 
-    public List<VisualizerElement> getImmutableElements() {
+    public List<Shape> getImmutableElements() {
         // List is immutable due to List#copyOf in the constructor
         return elements;
     }
@@ -48,6 +59,21 @@ public class VisualizerElementCollection {
                 .forEach((s) -> s.clear(supervisor));
     }
 
+    // Create std options instance, in case no option was defined
+    @Nullable
+    private static ImplOptions<?> createStdOption(Class<? extends ImplOptions<?>> implClass) {
+        try {
+            final Optional<Constructor<?>> opCon = Arrays.stream(implClass.getDeclaredConstructors())
+                    .filter(c -> c.getParameterCount() == 0)
+                    .findFirst();
+            if (opCon.isEmpty()) return null;   // Conor-02.10.2024: HOW?!
+            final Constructor<?> con = opCon.get();
+            con.setAccessible(true);
+            return ((ImplOptions<?>) con.newInstance()).getStd();
+        }
+        catch(Exception e) { return null; }
+    }
+
     ///////////////////////////////////////////////////////////////////////////
     // Builder
     ///////////////////////////////////////////////////////////////////////////
@@ -59,16 +85,16 @@ public class VisualizerElementCollection {
     @Getter
     public static class Builder {
 
-        private final List<VisualizerElement> elements = new ArrayList<>();
+        private final List<Shape> elements = new ArrayList<>();
 
         private Builder() { }
 
-        public Builder addElement(VisualizerElement element) {
+        public Builder addElement(Shape element) {
             elements.add(element);
             return this;
         }
 
-        public Builder removeElement(VisualizerElement element) {
+        public Builder removeElement(Shape element) {
             elements.remove(element);
             return this;
         }

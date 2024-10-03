@@ -8,7 +8,7 @@ import org.jetbrains.annotations.Range;
 
 /* Created by Conor on 18.07.2024 */
 @Getter
-public class DebugModOptions implements ImplOptions {
+public class DebugModOptions extends ImplOptions<DebugModOptions> {
 
     private DebugColor primaryColor   = DebugColor.getRandomColor();
     private DebugColor secondaryColor = primaryColor;
@@ -19,6 +19,10 @@ public class DebugModOptions implements ImplOptions {
 
     public static DebugModOptions createStd() {
         return new DebugModOptions();
+    }
+
+    public DebugModOptions getStd() {
+        return createStd();
     }
 
     ///////////////////////////////////////////////////////////////////////////

@@ -2,11 +2,12 @@ package com.hellfire.net.debug_visualizer.impl;
 
 import com.hellfire.net.debug_visualizer.VisualSupervisor;
 import com.hellfire.net.debug_visualizer.impl.debugmod.DebugModOptions;
-import com.hellfire.net.debug_visualizer.impl.debugmod.DebugModVisualizer;
 import com.hellfire.net.debug_visualizer.impl.particles.DebugParticleOptions;
 import com.hellfire.net.debug_visualizer.impl.particles.DebugParticleVisualizer;
 import com.hellfire.net.debug_visualizer.options.DebugColor;
-import com.hellfire.net.debug_visualizer.visualizers.IDebugVisualizer;
+import com.hellfire.net.debug_visualizer.visualizers.DebugVisualizer;
+import com.hellfire.net.debug_visualizer.visualizers.Shape;
+import com.hellfire.net.debug_visualizer.visualizers.VisualizerElementCollection;
 import net.minestom.server.MinecraftServer;
 import net.minestom.server.coordinate.Pos;
 import net.minestom.server.coordinate.Vec;
@@ -17,6 +18,7 @@ import net.minestom.server.instance.InstanceContainer;
 import net.minestom.server.instance.InstanceManager;
 import net.minestom.server.instance.LightingChunk;
 import net.minestom.server.instance.block.Block;
+import net.minestom.server.particle.Particle;
 import net.minestom.server.timer.TaskSchedule;
 
 public class DebugParticleVisualizerTest {
@@ -54,22 +56,33 @@ public class DebugParticleVisualizerTest {
     }
 
     public static void createBlock(Vec position, Player player) {
-        final IDebugVisualizer visualizer = new DebugParticleVisualizer();
-        visualizer.createBlock(position)
-                .withConfig(DebugParticleOptions.class, DebugParticleOptions.createWithColor(DebugColor.DARK_BLUE))
-                .withConfig(DebugModOptions.class, DebugModOptions.createPrimaryColor(DebugColor.DARK_BLUE))
-                .toCollection()
-                .draw(VisualSupervisor.STD.create(player));
+        final DebugVisualizer visualizer = new DebugParticleVisualizer();
 
-        visualizer.createLine(new Vec(0, 0, 0), new Vec(0, 50, 5))
-                .withConfig(DebugParticleOptions.class, DebugParticleOptions.createWithColor(DebugColor.DARK_RED))
-                .toCollection()
-                .draw(VisualSupervisor.STD.create(player));
-
-        visualizer.createArea(new Vec(5, 45, 5), new Vec(10, 50, 10))
-                .withConfig(DebugParticleOptions.class, DebugParticleOptions.createWithDensity(0.1))
-                .toCollection()
-                .draw(VisualSupervisor.STD.create(player));
+        VisualizerElementCollection.builder()
+                .addElement(Shape.createBlock(
+                        position,
+                        (options) -> {
+                                options.withOption(DebugParticleOptions.class, DebugParticleOptions.createWithColor(DebugColor.DARK_BLUE));
+                                options.withOption(DebugModOptions.class, DebugModOptions.createPrimaryColor(DebugColor.DARK_BLUE));
+                        }
+                ))
+                .addElement(Shape.createLine(
+                        new Vec(0, 0, 0), new Vec(0, 50, 5),
+                        (options) -> options.withOption(DebugParticleOptions.class, DebugParticleOptions.createWithDensity(0.1))
+                ))
+                .addElement(Shape.createArea(
+                        new Vec(5, 45, 5), new Vec(10, 50, 10),
+                        (options) -> options.withOption(DebugParticleOptions.class, DebugParticleOptions.createWithDensity(0.1))
+                ))
+                .addElement(Shape.createPlane(
+                        new Vec(5, 42, -2), new Vec(10, 42, -7), new Vec(15, 40, -8),
+                        (options) -> options.withOption(DebugParticleOptions.class, DebugParticleOptions.createWithDensity(0.1))
+                ))
+                .addElement(Shape.createLine(
+                        new Vec(10, 42, 10), new Vec(0, 45, 0),
+                        (options) -> options.withOption(DebugParticleOptions.class, DebugParticleOptions.createWithParticle(Particle.SOUL_FIRE_FLAME).setDensity(0.1))
+                ))
+                .build().draw(VisualSupervisor.STD.create(player, visualizer));
     }
 
 }

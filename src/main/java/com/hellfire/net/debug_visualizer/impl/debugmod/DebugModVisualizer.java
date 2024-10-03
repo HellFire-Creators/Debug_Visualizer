@@ -1,21 +1,19 @@
 package com.hellfire.net.debug_visualizer.impl.debugmod;
 
-import com.hellfire.net.debug_visualizer.impl.particles.DebugParticleOptions;
-import com.hellfire.net.debug_visualizer.visualizers.IDebugVisualizer;
+import com.hellfire.net.debug_visualizer.options.ImplOptions;
+import com.hellfire.net.debug_visualizer.visualizers.DebugVisualizer;
 import com.hellfire.net.debug_visualizer.visualizers.VisualizerElement;
 import com.mattworzala.debug.DebugMessage;
 import com.mattworzala.debug.shape.BoxShape;
 import com.mattworzala.debug.shape.LineShape;
+import com.mattworzala.debug.shape.QuadShape;
 import com.mattworzala.debug.shape.Shape;
 import net.kyori.adventure.audience.Audience;
 import net.minestom.server.coordinate.Vec;
 import net.minestom.server.entity.Player;
-import net.minestom.server.utils.Direction;
 import net.minestom.server.utils.NamespaceID;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
-import javax.swing.*;
 import java.util.UUID;
 
 /**
@@ -23,7 +21,7 @@ import java.util.UUID;
  * methods for drawing visual elements in mattw's debug mod. It generates random
  * colors and NamespaceIDs for each drawn element.
  */
-public class DebugModVisualizer implements IDebugVisualizer {
+public class DebugModVisualizer extends DebugVisualizer {
 
     /**
      * Generates a random NamespaceID based on the given typeName. <br>
@@ -55,8 +53,8 @@ public class DebugModVisualizer implements IDebugVisualizer {
             private final NamespaceID ns = getRandomNamespaceID("line");
 
             @Override
-            public void draw(@NotNull Player player) {
-                final DebugModOptions op = (DebugModOptions) options.computeIfAbsent(DebugModOptions.class, (k) -> DebugModOptions.createStd());
+            public void draw(@NotNull Player player, @NotNull ImplOptions<?> options) {
+                final DebugModOptions op = (DebugModOptions) options;
 
                 final LineShape.Builder builder = Shape.line()
                         .color(op.getPrimaryColor().getHexCode(op.getPrimaryAlpha()))
@@ -79,10 +77,10 @@ public class DebugModVisualizer implements IDebugVisualizer {
         final NamespaceID ns = getRandomNamespaceID("block");
 
         return new VisualizerElement() {
-            final DebugModOptions op = (DebugModOptions) options.computeIfAbsent(DebugModOptions.class, (k) -> DebugModOptions.createStd());
 
             @Override
-            public void draw(@NotNull Player player) {
+            public void draw(@NotNull Player player, @NotNull ImplOptions<?> options) {
+                final DebugModOptions op = (DebugModOptions) options;
                 sendBoxShape(ns, player, op, position, position.add(1));
             }
 
@@ -96,12 +94,11 @@ public class DebugModVisualizer implements IDebugVisualizer {
     @Override
     public VisualizerElement createArea(@NotNull Vec cornerA, @NotNull Vec cornerB) {
         final NamespaceID ns = getRandomNamespaceID("area");
-
         return new VisualizerElement() {
-            final DebugModOptions op = (DebugModOptions) options.computeIfAbsent(DebugModOptions.class, (k) -> DebugModOptions.createStd());
 
             @Override
-            public void draw(@NotNull Player player) {
+            public void draw(@NotNull Player player, @NotNull ImplOptions<?> options) {
+                final DebugModOptions op = (DebugModOptions) options;
                 sendBoxShape(ns, player, op, cornerA, cornerB);
             }
 
@@ -113,20 +110,23 @@ public class DebugModVisualizer implements IDebugVisualizer {
     }
 
     @Override
-    public VisualizerElement createPlane(@NotNull Direction dir, @NotNull Vec cornerA, @NotNull Vec cornerB) {
+    public VisualizerElement createPlaneImpl(@NotNull Vec cornerA, @NotNull Vec cornerB, @NotNull Vec cornerC, @NotNull Vec cornerD) {
         final NamespaceID ns = getRandomNamespaceID("plane");
-        final Vec otherCorner = switch (dir) {
-            case EAST, WEST ->      cornerB.withX(cornerA.x());
-            case UP, DOWN ->        cornerB.withY(cornerA.y());
-            case NORTH, SOUTH ->    cornerB.withZ(cornerA.z());
-        };
 
         return new VisualizerElement() {
-            final DebugModOptions op = (DebugModOptions) options.computeIfAbsent(DebugModOptions.class, (k) -> DebugModOptions.createStd());
 
             @Override
-            public void draw(@NotNull Player player) {
-                sendBoxShape(ns, player, op, cornerA, otherCorner);
+            public void draw(@NotNull Player player, @NotNull ImplOptions<?> options) {
+                final DebugModOptions op = (DebugModOptions) options;
+                final QuadShape plane = Shape.quad()
+                        .a(cornerA)
+                        .b(cornerB)
+                        .c(cornerC)
+                        .d(cornerD)
+                        .color(op.getPrimaryColor().getHexCode(op.getPrimaryAlpha()))
+                        .build();
+
+                DebugMessage.builder().set(ns, plane).build().sendTo(player);
             }
 
             @Override
@@ -134,6 +134,11 @@ public class DebugModVisualizer implements IDebugVisualizer {
                 DebugMessage.builder().remove(ns).build().sendTo(player);
             }
         };
+    }
+
+    @Override
+    public Class<? extends ImplOptions<?>> getOptionsClass() {
+        return DebugModOptions.class;
     }
 
 }
