@@ -2,6 +2,8 @@ package com.hellfire.net.debug_visualizer.impl;
 
 import com.hellfire.net.debug_visualizer.VisualSupervisor;
 import com.hellfire.net.debug_visualizer.impl.debugmod.DebugModOptions;
+import com.hellfire.net.debug_visualizer.impl.displayblock.DebugDisplayOptions;
+import com.hellfire.net.debug_visualizer.impl.displayblock.DebugDisplayVisualizer;
 import com.hellfire.net.debug_visualizer.impl.particles.DebugParticleOptions;
 import com.hellfire.net.debug_visualizer.impl.particles.DebugParticleVisualizer;
 import com.hellfire.net.debug_visualizer.options.DebugColor;
@@ -56,33 +58,68 @@ public class DebugParticleVisualizerTest {
     }
 
     public static void createBlock(Vec position, Player player) {
-        final DebugVisualizer visualizer = new DebugParticleVisualizer();
+        final DebugVisualizer visualizer = new DebugDisplayVisualizer();
 
-        VisualizerElementCollection.builder()
+        final Vec start = new Vec(3, 50, 3);
+        final Vec[] ends = new Vec[] {
+                new Vec(5, 56, 8),      // ✔
+                new Vec(7, 56, -15),    // ✔
+                new Vec(-5, 56, 2),     // ✔
+                new Vec(-7, 56, -15),   // ✔
+
+                new Vec(5, 42, 8),      // ✔
+                new Vec(7, 42, -15),    // ✔
+                new Vec(-5, 42, 2),     // ✔
+                new Vec(-7, 42, -15),   // ✔
+        };
+
+        final VisualizerElementCollection.Builder builder = VisualizerElementCollection.builder()
                 .addElement(Shape.createBlock(
                         position,
                         (options) -> {
-                                options.withOption(DebugParticleOptions.class, DebugParticleOptions.createWithColor(DebugColor.DARK_BLUE));
-                                options.withOption(DebugModOptions.class, DebugModOptions.createPrimaryColor(DebugColor.DARK_BLUE));
+                            options.withOption(DebugParticleOptions.class, DebugParticleOptions.createWithColor(DebugColor.DARK_BLUE));
+                            options.withOption(DebugModOptions.class, DebugModOptions.createPrimaryColor(DebugColor.DARK_BLUE));
+                            options.withOption(DebugDisplayOptions.class, DebugDisplayOptions.createWithState(DebugDisplayOptions.StateOption.CONCRETE));
+                        }
+                ))
+                .addElement(Shape.createArea(
+                        new Vec(10, 50, 10), new Vec(5, 45, 5),
+                        (options) -> {
+                            options.withOption(DebugParticleOptions.class, DebugParticleOptions.createWithDensity(0.1));
+                            options.withOption(DebugDisplayOptions.class, DebugDisplayOptions.createWithZFighting());
                         }
                 ))
                 .addElement(Shape.createLine(
-                        new Vec(0, 0, 0), new Vec(0, 50, 5),
-                        (options) -> options.withOption(DebugParticleOptions.class, DebugParticleOptions.createWithDensity(0.1))
-                ))
-                .addElement(Shape.createArea(
-                        new Vec(5, 45, 5), new Vec(10, 50, 10),
-                        (options) -> options.withOption(DebugParticleOptions.class, DebugParticleOptions.createWithDensity(0.1))
-                ))
-                .addElement(Shape.createPlane(
-                        new Vec(5, 42, -2), new Vec(10, 42, -7), new Vec(15, 40, -8),
-                        (options) -> options.withOption(DebugParticleOptions.class, DebugParticleOptions.createWithDensity(0.1))
+                        new Vec(-5, 40, -5), new Vec(-7, 40, -5), op -> op.withOption(DebugDisplayOptions.class, DebugDisplayOptions.createWithState(DebugDisplayOptions.StateOption.CONCRETE))
+                ));
+
+        for (Vec end : ends) {
+            builder
+                    .addElement(Shape.createLine(start, end, o -> o.withOption(DebugDisplayOptions.class, DebugDisplayOptions.createWithState(DebugDisplayOptions.StateOption.CONCRETE))))
+                    .addElement(Shape.createArea(end.sub(0.1), end.add(0.1), op -> op.withOption(DebugDisplayOptions.class, DebugDisplayOptions.createWithColor(DebugColor.YELLOW))));
+        }
+
+        builder.build().draw(VisualSupervisor.STD.create(player, visualizer));
+
+
+        VisualizerElementCollection.builder()
+                .addElement(Shape.createLine(
+                        start, start.add(10, 0, 0),
+                        (op) -> op.withOption(DebugParticleOptions.class, DebugParticleOptions.createWithDensity(0.1).setColor(DebugColor.RED))
                 ))
                 .addElement(Shape.createLine(
-                        new Vec(10, 42, 10), new Vec(0, 45, 0),
-                        (options) -> options.withOption(DebugParticleOptions.class, DebugParticleOptions.createWithParticle(Particle.SOUL_FIRE_FLAME).setDensity(0.1))
+                        start, start.add(0, 10, 0),
+                        (op) -> op.withOption(DebugParticleOptions.class, DebugParticleOptions.createWithDensity(0.1).setColor(DebugColor.GREEN))
                 ))
-                .build().draw(VisualSupervisor.STD.create(player, visualizer));
+                .addElement(Shape.createLine(
+                        start, start.add(0, 0, 10),
+                        (op) -> op.withOption(DebugParticleOptions.class, DebugParticleOptions.createWithDensity(0.1).setColor(DebugColor.BLUE))
+                ))
+                .addElement(Shape.createArea(
+                        start.sub(0.2), start.add(0.2),
+                        (op) -> op.withOption(DebugParticleOptions.class, DebugParticleOptions.createWithColor(DebugColor.BLACK))
+                ))
+                .build().draw(VisualSupervisor.STD.create(player, new DebugParticleVisualizer()));
     }
 
 }
