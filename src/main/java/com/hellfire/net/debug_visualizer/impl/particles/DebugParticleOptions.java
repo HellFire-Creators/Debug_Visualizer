@@ -29,7 +29,7 @@ public class DebugParticleOptions extends ImplOptions<DebugParticleOptions> {
     ///////////////////////////////////////////////////////////////////////////
 
     public static DebugParticleOptions createWithColor(@NotNull DebugColor color) {
-        final DebugParticleOptions options = new DebugParticleOptions();
+        final DebugParticleOptions options = createStd();
         options.color = color;
 
         return options;
@@ -38,13 +38,13 @@ public class DebugParticleOptions extends ImplOptions<DebugParticleOptions> {
     public static DebugParticleOptions createWithDensity(double density) {
         if (density <= 0) throw new IllegalArgumentException("Density must be greater than zero!");
 
-        final DebugParticleOptions options = new DebugParticleOptions();
+        final DebugParticleOptions options = createStd();
         options.density = density;
         return options;
     }
 
     public static DebugParticleOptions createWithParticle(@NotNull Particle particle) {
-        final DebugParticleOptions options = new DebugParticleOptions();
+        final DebugParticleOptions options = createStd();
         options.particle = particle;
         return options;
     }

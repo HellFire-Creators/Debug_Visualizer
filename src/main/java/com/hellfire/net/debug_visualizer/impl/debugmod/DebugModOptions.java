@@ -30,25 +30,25 @@ public class DebugModOptions extends ImplOptions<DebugModOptions> {
     ///////////////////////////////////////////////////////////////////////////
 
     public static DebugModOptions createPrimaryColor(@NotNull DebugColor color) {
-        final DebugModOptions options = new DebugModOptions();
+        final DebugModOptions options = createStd();
         options.primaryColor = color;
         return options;
     }
 
     public static DebugModOptions createSecondaryColor(@NotNull DebugColor color) {
-        final DebugModOptions options = new DebugModOptions();
+        final DebugModOptions options = createStd();
         options.secondaryColor = color;
         return options;
     }
 
     public static DebugModOptions createPrimaryAlpha(@Range(from = 0, to = 1) float alpha) {
-        final DebugModOptions options = new DebugModOptions();
+        final DebugModOptions options = createStd();
         options.primaryAlpha = alpha;
         return options;
     }
 
     public static DebugModOptions createSecondaryAlpha(@Range(from = 0, to = 1) float alpha) {
-        final DebugModOptions options = new DebugModOptions();
+        final DebugModOptions options = createStd();
         options.secondaryAlpha = alpha;
         return options;
     }

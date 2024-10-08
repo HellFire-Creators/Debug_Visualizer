@@ -20,7 +20,6 @@ public enum DebugColor {
     GREEN(0x0055FF55),
     DARK_GREEN(0x0000AA00),
     AQUA(0x0055FFFF),
-    DARK_AQUA(0x0000AAAA),
     BLUE(0x005555FF),
     DARK_BLUE(0x000000AA),
     LIGHT_PURPLE(0x00FF55FF),
@@ -28,7 +27,8 @@ public enum DebugColor {
     WHITE(0x00FFFFFF),
     GRAY(0x00AAAAAA),
     DARK_GRAY(0x00555555),
-    BLACK(0x00000000);
+    BLACK(0x00000000),
+    BROWN(0x0061371F);
 
     private final int hexCode;  // aRGB
     @Getter private final float[] particleRGB;
