@@ -20,11 +20,6 @@ public class DebugParticleVisualizer extends DebugVisualizer {
     private static final int PARTICLE_LIFE_DURATION = 5;    // Time until new particles are spawned, in ticks
 
     @Override
-    public VisualizerElement createBlock(@NotNull Vec position) {
-        return createArea(position, position.add(1, 1, 1));
-    }
-
-    @Override
     public VisualizerElement createArea(@NotNull Vec cornerA, @NotNull Vec cornerB) {
         return new VisualizerElement() {
             private Task task;

@@ -55,7 +55,6 @@ public class Shape {
         );
     }
 
-
     public static final class ConfigurableOptions {
 
         private final Map<Class<? extends ImplOptions<?>>, ImplOptions<?>> optionsMap = new HashMap<>();

@@ -14,7 +14,9 @@ public abstract class DebugVisualizer {
      * @param position the position at which the block marker should be drawn
      * @return a VisualizerElement representing the block marker
      */
-    public abstract VisualizerElement createBlock(final @NotNull Vec position);
+    public VisualizerElement createBlock(final @NotNull Vec position) {
+        return createArea(position, position.add(1));
+    }
 
     /**
      * Creates an area marker between two specified corners.
