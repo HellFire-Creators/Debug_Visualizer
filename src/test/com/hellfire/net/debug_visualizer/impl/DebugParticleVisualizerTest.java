@@ -61,7 +61,7 @@ public class DebugParticleVisualizerTest {
         final DebugVisualizer visualizer = new DebugDisplayVisualizer();
 
         final Vec start = new Vec(3, 50, 3);
-        final Vec[] ends = new Vec[] {
+        final Vec[] ends = new Vec[]{
                 new Vec(5, 56, 8),      // ✔
                 new Vec(7, 56, -15),    // ✔
                 new Vec(-5, 56, 2),     // ✔
@@ -76,27 +76,22 @@ public class DebugParticleVisualizerTest {
         final VisualizerElementCollection.Builder builder = VisualizerElementCollection.builder()
                 .addElement(Shape.createBlock(
                         position,
-                        (options) -> {
-                            options.withOption(DebugParticleOptions.class, DebugParticleOptions.createWithColor(DebugColor.DARK_BLUE));
-                            options.withOption(DebugModOptions.class, DebugModOptions.createPrimaryColor(DebugColor.DARK_BLUE));
-                            options.withOption(DebugDisplayOptions.class, DebugDisplayOptions.createWithState(DebugDisplayOptions.StateOption.CONCRETE));
-                        }
+                        DebugParticleOptions.createWithColor(DebugColor.DARK_BLUE),
+                        DebugModOptions.createPrimaryColor(DebugColor.DARK_BLUE),
+                        DebugDisplayOptions.createWithState(DebugDisplayOptions.StateOption.CONCRETE)
                 ))
                 .addElement(Shape.createArea(
-                        new Vec(10, 50, 10), new Vec(5, 45, 5),
-                        (options) -> {
-                            options.withOption(DebugParticleOptions.class, DebugParticleOptions.createWithDensity(0.1));
-                            options.withOption(DebugDisplayOptions.class, DebugDisplayOptions.createWithZFighting());
-                        }
+                        new Vec(10, 50, 10), new Vec(5, 45, 5)
                 ))
                 .addElement(Shape.createLine(
-                        new Vec(-5, 40, -5), new Vec(-7, 40, -5), op -> op.withOption(DebugDisplayOptions.class, DebugDisplayOptions.createWithState(DebugDisplayOptions.StateOption.CONCRETE))
+                        new Vec(-5, 40, -5), new Vec(-7, 40, -5),
+                        DebugDisplayOptions.createWithState(DebugDisplayOptions.StateOption.CONCRETE)
                 ));
 
         for (Vec end : ends) {
             builder
-                    .addElement(Shape.createLine(start, end, o -> o.withOption(DebugDisplayOptions.class, DebugDisplayOptions.createWithState(DebugDisplayOptions.StateOption.CONCRETE))))
-                    .addElement(Shape.createArea(end.sub(0.1), end.add(0.1), op -> op.withOption(DebugDisplayOptions.class, DebugDisplayOptions.createWithColor(DebugColor.YELLOW))));
+                    .addElement(Shape.createLine(start, end, DebugDisplayOptions.createWithState(DebugDisplayOptions.StateOption.CONCRETE)))
+                    .addElement(Shape.createArea(end.sub(0.1), end.add(0.1), DebugDisplayOptions.createWithColor(DebugColor.YELLOW)));
         }
 
         builder.build().draw(VisualSupervisor.STD.create(player, visualizer));
@@ -105,19 +100,19 @@ public class DebugParticleVisualizerTest {
         VisualizerElementCollection.builder()
                 .addElement(Shape.createLine(
                         start, start.add(10, 0, 0),
-                        (op) -> op.withOption(DebugParticleOptions.class, DebugParticleOptions.createWithDensity(0.1).setColor(DebugColor.RED))
+                        DebugParticleOptions.createWithDensity(0.1).setColor(DebugColor.RED)
                 ))
                 .addElement(Shape.createLine(
                         start, start.add(0, 10, 0),
-                        (op) -> op.withOption(DebugParticleOptions.class, DebugParticleOptions.createWithDensity(0.1).setColor(DebugColor.GREEN))
+                        DebugParticleOptions.createWithDensity(0.1).setColor(DebugColor.GREEN)
                 ))
                 .addElement(Shape.createLine(
                         start, start.add(0, 0, 10),
-                        (op) -> op.withOption(DebugParticleOptions.class, DebugParticleOptions.createWithDensity(0.1).setColor(DebugColor.BLUE))
+                        DebugParticleOptions.createWithDensity(0.1).setColor(DebugColor.BLUE)
                 ))
                 .addElement(Shape.createArea(
                         start.sub(0.2), start.add(0.2),
-                        (op) -> op.withOption(DebugParticleOptions.class, DebugParticleOptions.createWithColor(DebugColor.BLACK))
+                        DebugParticleOptions.createWithColor(DebugColor.BLACK)
                 ))
                 .build().draw(VisualSupervisor.STD.create(player, new DebugParticleVisualizer()));
     }
