@@ -7,10 +7,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Constructor;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 /**
  * The VisualizerElementCollection class represents a collection of VisualizerElement objects.
@@ -32,19 +29,16 @@ public class VisualizerElementCollection {
             final ImplOptions<?> option = e.optionsMap.computeIfAbsent(optionsClass, (k) -> createStdOption(optionsClass));
 
             if (option == null) throw new RuntimeException("Could not instantiate a default visualizer option for " + optionsClass.getSimpleName());
-            e.visFunc.apply(supervisor.getVisualizer()).draw(supervisor.getPlayer(), option);
+            e.visFunc.apply(supervisor.getVisualizer()).forEach(v -> v.draw(supervisor.getPlayer(),  option));
         });
         supervisor.addVisibleElements(this);
     }
 
     public void clear(final @NotNull VisualSupervisor supervisor) {
-        elements.forEach((e) -> e.visFunc.apply(supervisor.getVisualizer()).clear(supervisor.getPlayer()));
+        for (Shape shape : elements) {
+            shape.visFunc.apply(supervisor.getVisualizer()).forEach(v -> v.clear(supervisor.getPlayer()));
+        }
         supervisor.removeVisibleElements(this);
-    }
-
-    public List<Shape> getImmutableElements() {
-        // List is immutable due to List#copyOf in the constructor
-        return elements;
     }
 
     /**
