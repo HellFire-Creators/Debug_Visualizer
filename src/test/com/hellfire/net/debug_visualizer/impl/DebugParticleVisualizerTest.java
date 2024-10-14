@@ -114,6 +114,15 @@ public class DebugParticleVisualizerTest {
                         start.sub(0.2), start.add(0.2),
                         DebugParticleOptions.createWithColor(DebugColor.BLACK)
                 ))
+                .addElement(Shape.createPlane(
+                        new Vec(-7, 41, -7), new Vec(-7, 41, -4),
+                        new Vec(-10, 41, -4), new Vec(-10, 41, -7),
+                        DebugParticleOptions.createWithDensity(0.1).setFillDensity(0.4)
+                ))
+                .addElement(Shape.createArea(
+                        new Vec(-12, 40, -12), new Vec(-13, 42, -13),
+                        DebugParticleOptions.createWithDensity(0.1).setFillDensity(0.3)
+                ))
                 .build().draw(VisualSupervisor.STD.create(player, new DebugParticleVisualizer()));
     }
 

@@ -12,6 +12,7 @@ public class DebugParticleOptions extends ImplOptions<DebugParticleOptions> {
 
     private DebugColor color    = DebugColor.getRandomColor();
     private double density      = 0.5f;  // # of particles per distance (0.5 => 2 particles per block)
+    private double fillDensity  = 0.5f;  // Doesn't work for everything though
     private Particle particle   = Particle.DUST;
 
     private DebugParticleOptions() { }
@@ -49,6 +50,14 @@ public class DebugParticleOptions extends ImplOptions<DebugParticleOptions> {
         return options;
     }
 
+    public static DebugParticleOptions createWithFillDensity(double density) {
+        if (density < 0) throw new IllegalArgumentException("Density must not be negative!");
+
+        final DebugParticleOptions options = createStd();
+        options.fillDensity = density;
+        return options;
+    }
+
     ///////////////////////////////////////////////////////////////////////////
     // Setters
     ///////////////////////////////////////////////////////////////////////////
@@ -66,6 +75,12 @@ public class DebugParticleOptions extends ImplOptions<DebugParticleOptions> {
 
     public DebugParticleOptions setParticle(@NotNull Particle particle) {
         this.particle = particle;
+        return this;
+    }
+
+    public DebugParticleOptions setFillDensity(double density) {
+        if (density < 0) throw new IllegalArgumentException("Density must not be negative!");
+        this.fillDensity = density;
         return this;
     }
 
