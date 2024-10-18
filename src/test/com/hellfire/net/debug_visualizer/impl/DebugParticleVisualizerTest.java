@@ -39,6 +39,7 @@ public class DebugParticleVisualizerTest {
                 unit.modifier().fillHeight(0, 40, Block.GRASS_BLOCK)
         );
         instanceContainer.setBlock(new Vec(0, 43, 0), Block.DIAMOND_BLOCK);
+        instanceContainer.setTimeRate(0);
 
         // Start the server on port 25565
         minecraftServer.start("0.0.0.0", 25565);
@@ -74,6 +75,11 @@ public class DebugParticleVisualizerTest {
         };
 
         final VisualizerElementCollection.Builder builder = VisualizerElementCollection.builder()
+//                .addElement(Shape.createPlane(
+//                        8, 4,
+//                        new Vec(0, 42, 7),
+//                        new Vec(1, 0, 0), 45
+//                ))
                 .addElement(Shape.createBlock(
                         position,
                         DebugParticleOptions.createWithColor(DebugColor.DARK_BLUE),
@@ -115,14 +121,15 @@ public class DebugParticleVisualizerTest {
                         DebugParticleOptions.createWithColor(DebugColor.BLACK)
                 ))
                 .addElement(Shape.createPlane(
-                        new Vec(-7, 41, -7), new Vec(-7, 41, -4),
-                        new Vec(-10, 41, -4), new Vec(-10, 41, -7),
-                        DebugParticleOptions.createWithDensity(0.1).setFillDensity(0.4)
+                        8, 4,
+                        new Vec(0, 42, 5),
+                        new Vec(0.01, 0, 1), 0,
+                        DebugParticleOptions.createWithDensity(0.1).setFillDensity(0.3)
                 ))
                 .addElement(Shape.createPlane(
                         8, 4,
-                        new Vec(0, 42, 6),
-                        new Vec(0, 0, 1), 0,
+                        new Vec(-10, 42, -10),
+                        new Vec(1, 1, 1), 0,
                         DebugParticleOptions.createWithDensity(0.1).setFillDensity(0.3)
                 ))
                 .addElement(Shape.createArea(

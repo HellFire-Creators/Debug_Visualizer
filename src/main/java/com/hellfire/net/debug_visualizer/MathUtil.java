@@ -5,6 +5,9 @@ import net.minestom.server.coordinate.Vec;
 /* Created by Conor on 03.10.2024 */
 public final class MathUtil {
 
+    private static final double PI_OVER_2 = Math.PI / 2;
+    private static final double PI_TIMES_2 = Math.PI * 2;
+
     public static float[] eulerAngleToQuaternion(double roll, double pitch, double yaw) {
         double cr = Math.cos(roll * 0.5);
         double sr = Math.sin(roll * 0.5);
@@ -23,6 +26,57 @@ public final class MathUtil {
         return q;
     }
 
+    public static Vec planeLineIntersection(Vec p1, Vec p2, Vec p3, Vec dir, Vec start) {
+        // Calc normal of plane
+        final Vec v1 = p2.sub(p1);
+        final Vec v2 = p3.sub(p1);
+        final Vec n_plane = v1.cross(v2);
+
+
+        // Calc dist from start to the intersection (r)
+        final double d = n_plane.dot(p1);
+        final double numerator = d - n_plane.dot(start);
+        final double denominator = n_plane.dot(dir);
+        final double r = numerator / denominator;
+
+        // Calc intersection
+        return dir.mul(r).add(start);
+    }
+
+    // https://github.com/JOML-CI/JOML/blob/main/src/main/java/org/joml/Quaterniond.java
+    public static float[] rotationYXZ(double angleY, double angleX, double angleZ) {
+        double sx = Math.sin(angleX * 0.5);
+        double cx = cosFromSin(sx, angleX * 0.5);
+        double sy = Math.sin(angleY * 0.5);
+        double cy = cosFromSin(sy, angleY * 0.5);
+        double sz = Math.sin(angleZ * 0.5);
+        double cz = cosFromSin(sz, angleZ * 0.5);
+
+        double cysx = cy * sx;
+        double sycy = sy * cx;
+        double sysz = sy * sx;
+        double cycw = cy * cx;
+        double x = cysx * cz + sycy * sz;
+        double y = sycy * cz - cysx * sz;
+        double z = cycw * sz - sysz * cz;
+        double w = cycw * cz + sysz * sz;
+
+        return new float[] {(float) x, (float) y, (float) z, (float) w};
+    }
+
+    // https://github.com/JOML-CI/JOML/blob/main/src/main/java/org/joml/Math.java
+    private static double cosFromSin(double sin, double angle) {
+        // sin(x)^2 + cos(x)^2 = 1
+        double cos = Math.sqrt(1.0 - sin * sin);
+        double a = angle + PI_OVER_2;
+        double b = a - (int)(a / PI_TIMES_2) * PI_TIMES_2;
+        if (b < 0.0)
+            b = PI_TIMES_2 + b;
+        if (b >= Math.PI)
+            return -cos;
+        return cos;
+    }
+
     private static void normalize(float[] q) {
         final float x = q[0], y = q[1], z = q[2], w = q[3];
         final float len = (float) Math.sqrt(x * x + y * y + z * z + w * w);
@@ -31,5 +85,4 @@ public final class MathUtil {
         q[2] /= len;
         q[3] /= len;
     }
-
 }

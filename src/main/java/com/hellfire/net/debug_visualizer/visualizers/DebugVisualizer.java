@@ -30,6 +30,9 @@ public abstract class DebugVisualizer {
     //  Fix docu!
     /**
      * Creates a plane centered on a point facing a specified direction.
+     * @implNote Assuming that <code>rot</code> is equal to <code>0</code>, then following statements must hold: <br>
+     * - a and b / c and d will have the same y-value <br>
+     * - a.y / b.y >= c.y / d.y
      *
      * @param center center of the plane
      * @param dir the direction the plane is facing
