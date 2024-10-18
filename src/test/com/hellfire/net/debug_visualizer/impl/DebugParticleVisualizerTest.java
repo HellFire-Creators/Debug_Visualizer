@@ -119,6 +119,12 @@ public class DebugParticleVisualizerTest {
                         new Vec(-10, 41, -4), new Vec(-10, 41, -7),
                         DebugParticleOptions.createWithDensity(0.1).setFillDensity(0.4)
                 ))
+                .addElement(Shape.createPlane(
+                        8, 4,
+                        new Vec(0, 42, 6),
+                        new Vec(0, 0, 1), 0,
+                        DebugParticleOptions.createWithDensity(0.1).setFillDensity(0.3)
+                ))
                 .addElement(Shape.createArea(
                         new Vec(-12, 40, -12), new Vec(-13, 42, -13),
                         DebugParticleOptions.createWithDensity(0.1).setFillDensity(0.3)

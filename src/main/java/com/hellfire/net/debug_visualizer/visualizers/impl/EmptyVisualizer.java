@@ -30,7 +30,7 @@ public class EmptyVisualizer extends DebugVisualizer {
     }
 
     @Override
-    protected VisualizerElement createPlaneImpl(@NotNull Vec cornerA, @NotNull Vec cornerB, @NotNull Vec cornerC, @NotNull Vec cornerD) {
+    protected VisualizerElement createPlane(@NotNull Vec cornerA, @NotNull Vec cornerB, @NotNull Vec cornerC, @NotNull Vec cornerD) {
         return EMPTY;
     }
 

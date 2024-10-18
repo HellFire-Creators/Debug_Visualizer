@@ -4,8 +4,6 @@ import com.hellfire.net.debug_visualizer.options.ImplOptions;
 import net.minestom.server.coordinate.Vec;
 import org.jetbrains.annotations.NotNull;
 
-import java.security.InvalidParameterException;
-
 public abstract class DebugVisualizer {
 
     /**
@@ -27,29 +25,19 @@ public abstract class DebugVisualizer {
      */
     public abstract VisualizerElement createArea(final @NotNull Vec cornerA, final @NotNull Vec cornerB);
 
+    // Conor-18.10.2024
+    // Todo:
+    //  Fix docu!
     /**
-     * Creates a plane using three points, each of which act as a corner of the plane. The fourth corner is then inferred by the other 3. <br>
-     * If all three corners are placed in a line spanned by these three points, a {@link java.security.InvalidParameterException} will be thrown.
+     * Creates a plane centered on a point facing a specified direction.
      *
-     * @implNote The last corner is determined by taking the offset between corners B and C and applying it to cornerA.
-     *
-     * @param cornerA the first corner of the plane
-     * @param cornerB the second corner of the plane
-     * @param cornerC the third corner of the plane
-     * @return a VisualizerElement representing the plane marker
+     * @param center center of the plane
+     * @param dir the direction the plane is facing
+     * @param width the width of the plane
+     * @param length the length of the plane
+     * @return a {@link VisualizerElement} representing the plane
      */
-    public VisualizerElement createPlane(final @NotNull Vec cornerA, final @NotNull Vec cornerB, final @NotNull Vec cornerC) {
-        // Conor-03.10.2024: Check the corners and only then call the impl
-
-        final Vec v = cornerB.sub(cornerA).abs().normalize();
-        final Vec d = cornerC.sub(cornerA).abs().normalize();
-        if (d.equals(v)) throw new InvalidParameterException("All three points lie on a line!");
-
-        final Vec cornerD = cornerC.sub(cornerB).add(cornerA);
-        return createPlaneImpl(cornerA, cornerB, cornerC, cornerD);
-    }
-
-    protected abstract VisualizerElement createPlaneImpl(final @NotNull Vec cornerA, final @NotNull Vec cornerB, final @NotNull Vec cornerC, final @NotNull Vec cornerD);
+    protected abstract VisualizerElement createPlane(Vec a, Vec b, Vec c, Vec d);
 
     /**
      * Creates a line between two specified positions.

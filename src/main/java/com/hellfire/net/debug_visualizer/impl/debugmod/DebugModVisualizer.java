@@ -91,19 +91,18 @@ public class DebugModVisualizer extends DebugVisualizer {
     }
 
     @Override
-    public VisualizerElement createPlaneImpl(@NotNull Vec cornerA, @NotNull Vec cornerB, @NotNull Vec cornerC, @NotNull Vec cornerD) {
+    protected VisualizerElement createPlane(Vec a, Vec b, Vec c, Vec d) {
         final NamespaceID ns = getRandomNamespaceID("plane");
-
         return new VisualizerElement() {
 
             @Override
-            public void draw(@NotNull Player player, @NotNull ImplOptions<?> options) {
+            protected void draw(@NotNull Player player, ImplOptions<?> options) {
                 final DebugModOptions op = (DebugModOptions) options;
                 final QuadShape plane = Shape.quad()
-                        .a(cornerA)
-                        .b(cornerB)
-                        .c(cornerC)
-                        .d(cornerD)
+                        .a(a)
+                        .b(b)
+                        .c(c)
+                        .d(d)
                         .color(op.getPrimaryColor().getHexCode(op.getPrimaryAlpha()))
                         .build();
 
@@ -111,7 +110,7 @@ public class DebugModVisualizer extends DebugVisualizer {
             }
 
             @Override
-            public void clear(@NotNull Player player) {
+            protected void clear(@NotNull Player player) {
                 DebugMessage.builder().remove(ns).build().sendTo(player);
             }
         };

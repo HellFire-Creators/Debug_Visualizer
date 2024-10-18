@@ -5,11 +5,14 @@ import net.minestom.server.coordinate.Vec;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.security.InvalidParameterException;
 import java.util.*;
 import java.util.function.Function;
 
 /* Created by Conor on 02.10.2024 */
 public class Shape {
+
+    private static final double PLANE_DIR_DIFF_THRESHOLD = 0.02f;   // Used to determine when the direction should no longer affect the calculation
 
     // Conor-03.10.2024: Me not likey!
     protected final Map<Class<? extends ImplOptions<?>>, ImplOptions<?>> optionsMap = new HashMap<>();
@@ -40,6 +43,50 @@ public class Shape {
         return new Shape(
                 options,
                 (vis) -> List.of(vis.createPlane(cornerA, cornerB, cornerC, cornerD))
+        );
+    }
+
+    public static Shape createPlane(final double width, final double height, final @NotNull Vec center, final @NotNull Vec dir, double rot, final @Nullable ImplOptions<?>... options) {
+        if (dir.equals(Vec.ZERO)) throw new InvalidParameterException("The direction must not be zero!");
+        rot = Math.toRadians(rot);
+        final double hW = width / 2, hH = height / 2;
+        // Corners before rotation
+        final Vec nA = center.add(-hW, hH, 0), nB = center.add(hW, hH, 0);
+        final Vec nC = center.add(hW, -hH, 0), nD = center.add(-hW, -hH, 0);
+
+        // Vec from center to corner
+        final Vec dA = nA.sub(center), dB = nB.sub(center);
+        final Vec dC = nC.sub(center), dD = nD.sub(center);
+
+        // Corners after rotating around plane axis
+        final Vec rA = dA.rotateAroundZ(rot).add(center);
+        final Vec rB = dB.rotateAroundZ(rot).add(center);
+        final Vec rC = dC.rotateAroundZ(rot).add(center);
+        final Vec rD = dD.rotateAroundZ(rot).add(center);
+
+        // https://stackoverflow.com/a/23699458
+        final Vec dirA = new Vec(0, 0, 1);
+        final Vec dirB = dir.normalize();
+
+        if (dirA.normalize().sub(dirB.normalize()).length() < PLANE_DIR_DIFF_THRESHOLD) {
+            return new Shape(
+                    options,
+                    (vis) -> List.of(vis.createPlane(rA, rB, rC, rD))
+            );
+        }
+
+        final float posRot = (float) Math.acos(dirA.dot(dirB));
+        final Vec rotAxis = dirA.cross(dirB).normalize();
+
+        // Conor-16.10.2024: A bit stupid with subtracting and then adding back, but... meh
+        final Vec a = rA.sub(center).rotateAroundAxis(rotAxis, posRot).add(center);
+        final Vec b = rB.sub(center).rotateAroundAxis(rotAxis, posRot).add(center);
+        final Vec c = rC.sub(center).rotateAroundAxis(rotAxis, posRot).add(center);
+        final Vec d = rD.sub(center).rotateAroundAxis(rotAxis, posRot).add(center);
+
+        return new Shape(
+                options,
+                (vis) -> List.of(vis.createPlane(a, b, c, d))
         );
     }
 
