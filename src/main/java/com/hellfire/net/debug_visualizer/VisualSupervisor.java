@@ -5,13 +5,15 @@ import com.hellfire.net.debug_visualizer.visualizers.SingleVisualizerElementColl
 import com.hellfire.net.debug_visualizer.visualizers.VisualizerElementCollection;
 import lombok.Getter;
 import lombok.Setter;
+import net.kyori.adventure.text.Component;
+import net.minestom.server.MinecraftServer;
 import net.minestom.server.entity.Player;
+import net.minestom.server.instance.Instance;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Queue;
+import java.util.*;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
@@ -72,6 +74,20 @@ public interface VisualSupervisor {
 
         public static STD create(@NotNull Player player, @NotNull DebugVisualizer visualizer) {
             return new STD(player, visualizer);
+        }
+
+        @Nullable
+        @ApiStatus.Experimental
+        public static STD create(@NotNull String playerName, @NotNull DebugVisualizer visualizer) {
+            final Optional<@NotNull Player> playerOpt = MinecraftServer.getInstanceManager().getInstances().stream()
+                    .map(Instance::getPlayers)
+                    .flatMap(Set::stream)
+                    .filter((p) -> p.getName().equals(Component.text(playerName)))
+                    .findFirst();
+
+            return playerOpt
+                    .map(value -> create(value, visualizer))
+                    .orElse(null);
         }
 
         @Override
