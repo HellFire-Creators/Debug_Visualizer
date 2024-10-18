@@ -65,7 +65,7 @@ public class Shape {
         final Vec dA = nA.sub(center), dB = nB.sub(center);
         final Vec dC = nC.sub(center), dD = nD.sub(center);
 
-        // Mathematically unstable!
+        // Mathematically unstable otherwise!
         if (dir.abs().normalize().angle(STD_PLANE_DIR) < PLANE_DIR_DIFF_THRESHOLD) {
             final Vec a = dA.rotateAroundAxis(dir, rot);
             final Vec b = dB.rotateAroundAxis(dir, rot);
