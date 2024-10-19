@@ -1,8 +1,11 @@
 package com.hellfire.net.debug_visualizer.impl.displayblock;
 
 import com.hellfire.net.debug_visualizer.MathUtil;
+import com.hellfire.net.debug_visualizer.VisualSupervisor;
+import com.hellfire.net.debug_visualizer.options.DebugColor;
 import com.hellfire.net.debug_visualizer.options.ImplOptions;
 import com.hellfire.net.debug_visualizer.visualizers.DebugVisualizer;
+import com.hellfire.net.debug_visualizer.visualizers.Shape;
 import com.hellfire.net.debug_visualizer.visualizers.VisualizerElement;
 import com.hellfire.net.debug_visualizer.visualizers.VisualizerElementCollection;
 import net.minestom.server.coordinate.Pos;
@@ -83,6 +86,59 @@ public class DebugDisplayVisualizer extends DebugVisualizer {
     }
 
     @Override
+    protected VisualizerElement createPlane(Vec a, Vec b, Vec c, Vec d) {
+        final double width = a.distance(b), height = a.distance(d);
+
+        // Calc normal of plane / dir plane is facing
+        final Vec ba = b.sub(a), ca = c.sub(a);
+        final Vec dir = ba.cross(ca).normalize().abs();
+        System.out.println(dir);
+
+        // Get angles to rotate for Y and X
+        final boolean isUp = dir.normalize().abs().equals(Direction.UP.vec());
+        final double angleY = isUp ? 0 : Direction.SOUTH.vec().angle(dir.withY(0));
+        final double angleX = isUp ? Math.PI / 2 : dir.withY(0).angle(dir);
+
+        // Calc angle of plane
+        final Vec center = c.sub(a).div(2).add(a);
+        final Vec bottomCenter = d.sub(c).div(2).add(c).sub(center);
+        final Vec currDir = (dir.normalize().abs().equals(Direction.UP.vec())) ? new Vec(0, 0, 1) : new Vec(0, 1, 0);
+        final double rot = -currDir.angle(bottomCenter);
+        System.out.printf("Y: %.2f >> %.2f°\n", angleY, Math.toDegrees(angleY));
+        System.out.printf("X: %.2f >> %.2f°\n", angleX, Math.toDegrees(angleX));
+        System.out.printf("Z: %.2f >> %.2f°\n", rot, Math.toDegrees(rot));
+
+        return new VisualizerElement() {
+            int entId;
+
+            @Override
+            protected void draw(@NotNull Player player, ImplOptions<?> options) {
+                final DebugDisplayOptions op = (DebugDisplayOptions) options;
+
+//                VisualizerElementCollection.builder()
+//                        .addElement(Shape.createPoint(a, DebugDisplayOptions.createWithColor(DebugColor.WHITE)))
+//                        .addElement(Shape.createPoint(b, DebugDisplayOptions.createWithColor(DebugColor.GREEN)))
+//                        .addElement(Shape.createPoint(c, DebugDisplayOptions.createWithColor(DebugColor.YELLOW)))
+//                        .addElement(Shape.createPoint(d, DebugDisplayOptions.createWithColor(DebugColor.RED)))
+//                        .build().draw(VisualSupervisor.STD.create("Conorsmine", new DebugDisplayVisualizer()));
+
+                spawnEntity(player, getEntity(op, (m) -> {
+                    m.setBlockState(Block.PURPLE_CONCRETE);
+                    m.setScale(new Vec(width, height, MIN_THICKNESS));
+                    m.setLeftRotation(MathUtil.rotationYXZ(angleY, angleX, rot));
+                }), a.asPosition());
+//                entId = ent.getEntityId();
+//                spawnEntity(player, ent, c.asPosition());
+            }
+
+            @Override
+            protected void clear(@NotNull Player player) {
+                player.sendPacket(new DestroyEntitiesPacket(entId));
+            }
+        };
+    }
+
+    @Override
     public Class<? extends ImplOptions<?>> getOptionsClass() {
         return DebugDisplayOptions.class;
     }
@@ -128,12 +184,12 @@ public class DebugDisplayVisualizer extends DebugVisualizer {
 
     private static double mirrorYZ(Vec posA, Vec posB) {
         double theta = Math.atan((posB.x() - posA.x()) / (posB.y() - posA.y()));    // Mirror on YZ-Plane
-        return  -2 * theta;
+        return -2 * theta;
     }
 
     private static double mirrorXZ(Vec posA, Vec posB) {
         double theta = Math.atan((posB.y() - posA.y()) / (posB.x() - posA.x()));    // Mirror on XZ-Plane
-        return  2 * theta;
+        return 2 * theta;
     }
 
     private static double calcYaw(Vec posA, Vec posB) {
@@ -146,7 +202,7 @@ public class DebugDisplayVisualizer extends DebugVisualizer {
         return switch (i) {
             case 111, 110 -> mirrorYZ(posA, posB);
             case 101, 100 -> mirrorXZ(posA, posB);
-            case   0 -> Math.PI;
+            case 0 -> Math.PI;
 
             default -> 0;
         };
