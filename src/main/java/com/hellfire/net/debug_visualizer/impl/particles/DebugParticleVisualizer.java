@@ -1,8 +1,14 @@
 package com.hellfire.net.debug_visualizer.impl.particles;
 
+import com.hellfire.net.debug_visualizer.VisualSupervisor;
+import com.hellfire.net.debug_visualizer.impl.displayblock.DebugDisplayOptions;
+import com.hellfire.net.debug_visualizer.impl.displayblock.DebugDisplayVisualizer;
+import com.hellfire.net.debug_visualizer.options.DebugColor;
 import com.hellfire.net.debug_visualizer.options.ImplOptions;
 import com.hellfire.net.debug_visualizer.visualizers.DebugVisualizer;
+import com.hellfire.net.debug_visualizer.visualizers.Shape;
 import com.hellfire.net.debug_visualizer.visualizers.VisualizerElement;
+import com.hellfire.net.debug_visualizer.visualizers.VisualizerElementCollection;
 import net.minestom.server.MinecraftServer;
 import net.minestom.server.coordinate.Vec;
 import net.minestom.server.entity.Player;
@@ -32,28 +38,28 @@ public class DebugParticleVisualizer extends DebugVisualizer {
                 final Vec o = b.sub(a);
 
                 final ParticlePacket[] particles = Arrays.stream(new Vec[][]{
-                        // frame
-                        calcParticlePositions(a, a.add(o.x(), 0, 0), op),
-                        calcParticlePositions(a, a.add(0, o.y(), 0), op),
-                        calcParticlePositions(a, a.add(0, 0, o.z()), op),
-                        calcParticlePositions(b, b.sub(o.x(), 0, 0), op),
-                        calcParticlePositions(b, b.sub(0, o.y(), 0), op),
-                        calcParticlePositions(b, b.sub(0, 0, o.z()), op),
-                        calcParticlePositions(a.add(0, o.y(), 0), a.add(o.x(), o.y(), 0), op),
-                        calcParticlePositions(a.add(0, o.y(), 0), a.add(0, o.y(), o.z()), op),
-                        calcParticlePositions(b.sub(0, o.y(), 0), b.sub(o.x(), o.y(), 0), op),
-                        calcParticlePositions(b.sub(0, o.y(), 0), b.sub(0, o.y(), o.z()), op),
-                        calcParticlePositions(a.add(o.x(), 0, 0), a.add(o.x(), o.y(), 0), op),
-                        calcParticlePositions(a.add(0, 0, o.z()), a.add(0, o.y(), o.z()), op),
+                                // frame
+                                calcParticlePositions(a, a.add(o.x(), 0, 0), op),
+                                calcParticlePositions(a, a.add(0, o.y(), 0), op),
+                                calcParticlePositions(a, a.add(0, 0, o.z()), op),
+                                calcParticlePositions(b, b.sub(o.x(), 0, 0), op),
+                                calcParticlePositions(b, b.sub(0, o.y(), 0), op),
+                                calcParticlePositions(b, b.sub(0, 0, o.z()), op),
+                                calcParticlePositions(a.add(0, o.y(), 0), a.add(o.x(), o.y(), 0), op),
+                                calcParticlePositions(a.add(0, o.y(), 0), a.add(0, o.y(), o.z()), op),
+                                calcParticlePositions(b.sub(0, o.y(), 0), b.sub(o.x(), o.y(), 0), op),
+                                calcParticlePositions(b.sub(0, o.y(), 0), b.sub(0, o.y(), o.z()), op),
+                                calcParticlePositions(a.add(o.x(), 0, 0), a.add(o.x(), o.y(), 0), op),
+                                calcParticlePositions(a.add(0, 0, o.z()), a.add(0, o.y(), o.z()), op),
 
-                        // fill
-                        calcPlanePositions(a, a.add(o.x(), 0, 0), a.add(o.x(), o.y(), 0), a.add(0, o.y(), 0), op),
-                        calcPlanePositions(a, a.add(0, 0, o.z()), a.add(0, o.y(), o.z()), a.add(0, o.y(), 0), op),
-                        calcPlanePositions(a, a.add(o.x(), 0, 0), a.add(o.x(), 0, o.z()), a.add(0, 0, o.z()), op),
+                                // fill
+                                calcPlanePositions(a, a.add(o.x(), 0, 0), a.add(o.x(), o.y(), 0), a.add(0, o.y(), 0), op),
+                                calcPlanePositions(a, a.add(0, 0, o.z()), a.add(0, o.y(), o.z()), a.add(0, o.y(), 0), op),
+                                calcPlanePositions(a, a.add(o.x(), 0, 0), a.add(o.x(), 0, o.z()), a.add(0, 0, o.z()), op),
 
-                        calcPlanePositions(b, b.add(-o.x(), 0, 0), b.add(-o.x(), -o.y(), 0), b.add(0, -o.y(), 0), op),
-                        calcPlanePositions(b, b.add(0, 0, -o.z()), b.add(0, -o.y(), -o.z()), b.add(0, -o.y(), 0), op),
-                        calcPlanePositions(b, b.add(-o.x(), 0, 0), b.add(-o.x(), 0, -o.z()), b.add(0, 0, -o.z()), op),
+                                calcPlanePositions(b, b.add(-o.x(), 0, 0), b.add(-o.x(), -o.y(), 0), b.add(0, -o.y(), 0), op),
+                                calcPlanePositions(b, b.add(0, 0, -o.z()), b.add(0, -o.y(), -o.z()), b.add(0, -o.y(), 0), op),
+                                calcPlanePositions(b, b.add(-o.x(), 0, 0), b.add(-o.x(), 0, -o.z()), b.add(0, 0, -o.z()), op),
                         })
                         .flatMap(Arrays::stream)
                         .map((vec) -> convertToPacket(vec, op))
@@ -78,15 +84,15 @@ public class DebugParticleVisualizer extends DebugVisualizer {
             @Override
             protected void draw(@NotNull Player player, ImplOptions<?> options) {
                 final DebugParticleOptions op = (DebugParticleOptions) options;
-                final ParticlePacket[] particles = Arrays.stream(new Vec[][] {
-                        // frame
-                        calcParticlePositions(a, b, op),
-                        calcParticlePositions(b, c, op),
-                        calcParticlePositions(c, d, op),
-                        calcParticlePositions(d, a, op),
+                final ParticlePacket[] particles = Arrays.stream(new Vec[][]{
+                                // frame
+                                calcParticlePositions(a, b, op),
+                                calcParticlePositions(b, c, op),
+                                calcParticlePositions(c, d, op),
+                                calcParticlePositions(d, a, op),
 
-                        // fill
-                        calcPlanePositions(a, b, c, d, op),
+                                // fill
+                                calcPlanePositions(a, b, c, d, op),
                         })
                         .flatMap(Arrays::stream)
                         .map((vec) -> convertToPacket(vec, op))
@@ -159,7 +165,7 @@ public class DebugParticleVisualizer extends DebugVisualizer {
 
     // Only calcs the points INSIDE the plane
     private static Vec[] calcPlanePositions(Vec a, Vec b, Vec c, Vec d, DebugParticleOptions op) {
-        if  (op.getFillDensity() == 0) return new Vec[0];
+        if (op.getFillDensity() == 0) return new Vec[0];
         final List<Vec> positions = new ArrayList<>();
 
         final Vec ad = d.sub(a);

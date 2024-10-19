@@ -85,7 +85,7 @@ public class Shape {
 
         // Correct to expected std (a and b / c and d should have the same y value)
         final Vec iA = initRot[0], iB = initRot[1], iC = initRot[2], iD = initRot[3];
-        final double correctionRot = correctRotation(iA, iB, iC, iD, dir, center);
+        final double correctionRot = correctRotation(iC, iD, dir, center);
         System.out.printf("Cor: %.2f >> %.2f°\n", correctionRot, Math.toDegrees(correctionRot));
 
         // Correct and rotate
@@ -126,6 +126,7 @@ public class Shape {
     }
 
     /*                    Plane code                    */
+    // Conor-19.10.2024: SO MUCH MATH
 
     private static Shape createPlaneDef(Vec a, Vec b, Vec c, Vec d, Vec center, ImplOptions<?>... options) {
         return new Shape(
@@ -151,31 +152,27 @@ public class Shape {
         return res;
     }
 
-    private static double correctRotation(Vec a, Vec b, Vec c, Vec d, Vec dir, Vec center) {
+    private static double correctRotation(Vec c, Vec d, Vec dir, Vec center) {
         // Assuming rot = 0:
-        final Vec bottomCenter = d.sub(c).div(2).add(c);                                        // Vec from center to bottom center
+        // a.x = b.x > c.x = d.x
+        if (dir.abs().normalize().equals(Direction.UP.vec()))
+            return calcRotForDir(center, dir, c, d, new Vec(0,0, 1));
 
-        // a.x / b.x > c.x / d.x
-        if (dir.abs().normalize().equals(Direction.UP.vec())) {
-            final boolean isBelow = (bottomCenter.normalize().abs().equals(Direction.SOUTH.vec()));
-            final double correctionRot = (isBelow) ? 0 : MathUtil.planeLineIntersection(
-                    center, center.add(dir), center.sub(0, 0, 1),
-                    d.sub(c), c
-            ).angle(bottomCenter);
+        // a.y = b.y > c.y = d.y
+        else
+            return calcRotForDir(center, dir, c, d, new Vec(0, 1, 0));
+    }
 
-            return correctionRot;
-        }
+    private static double calcRotForDir(Vec center, Vec dir, Vec c, Vec d, Vec dirOffset) {
+        final Vec bottomCenter = d.sub(c).div(2).add(c);            // Vec from center to bottom center
 
-        // a.y / b.y > c.y / d.y
-        else {
-            final boolean isBelow = (bottomCenter.normalize().abs().equals(Direction.UP.vec()));  // If bottomcenter is directly below center
-            final double correctionRot = (isBelow) ? 0 : MathUtil.planeLineIntersection(
-                    center, center.add(dir), center.sub(0, 1, 0),   // Plane
-                    d.sub(c), c  // Line
-            ).angle(bottomCenter);
+        final boolean isBelow = (bottomCenter.normalize().abs().equals(dirOffset));   // If bottomcenter is facing the direction of orientation
+        final Vec vec = MathUtil.planeLineIntersection(
+                center, center.add(dir), center.sub(dirOffset),   // Plane
+                d.sub(c), c.add(center)  // Line
+        );
 
-            return correctionRot;
-        }
+        return (isBelow) ? 0 : bottomCenter.angle(vec.sub(center));
     }
 }
 

@@ -30,17 +30,14 @@ public final class MathUtil {
         // Calc normal of plane
         final Vec v1 = p2.sub(p1);
         final Vec v2 = p3.sub(p1);
-        final Vec n_plane = v1.cross(v2);
+        final Vec planeNormal = v1.cross(v2);
 
+        if (planeNormal.dot(dir.normalize()) == 0) {
+            return null;
+        }
 
-        // Calc dist from start to the intersection (r)
-        final double d = n_plane.dot(p1);
-        final double numerator = d - n_plane.dot(start);
-        final double denominator = n_plane.dot(dir);
-        final double r = numerator / denominator;
-
-        // Calc intersection
-        return dir.mul(r).add(start);
+        double t = (planeNormal.dot(p2) - planeNormal.dot(start)) / planeNormal.dot(dir.normalize());
+        return start.add(dir.normalize().mul(t));
     }
 
     // https://github.com/JOML-CI/JOML/blob/main/src/main/java/org/joml/Quaterniond.java
