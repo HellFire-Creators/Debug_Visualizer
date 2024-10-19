@@ -86,7 +86,6 @@ public class Shape {
         // Correct to expected std (a and b / c and d should have the same y value)
         final Vec iA = initRot[0], iB = initRot[1], iC = initRot[2], iD = initRot[3];
         final double correctionRot = correctRotation(iC, iD, dir, center);
-        System.out.printf("Cor: %.2f >> %.2f°\n", correctionRot, Math.toDegrees(correctionRot));
 
         // Correct and rotate
         final Vec a = iA.rotateAroundAxis(dir, correctionRot + rot);
