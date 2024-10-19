@@ -18,6 +18,7 @@ public class DebugDisplayOptions extends ImplOptions<DebugDisplayOptions> {
     private StateOption state       = StateOption.GLASS;
     private @Nullable Block block   = null;     // Null indicates the usage of the state option!
     private boolean zFighting       = true;     // When set to true, the size of the entities will be slightly increased to remove z-fighting
+    private boolean glowing         = false;
 
     private DebugDisplayOptions() { /* EMPTY */ }
 
@@ -62,6 +63,13 @@ public class DebugDisplayOptions extends ImplOptions<DebugDisplayOptions> {
         return options;
     }
 
+    public static DebugDisplayOptions createWithGlowing() {
+        final DebugDisplayOptions options = createStd();
+
+        options.glowing = true;
+        return options;
+    }
+
     ///////////////////////////////////////////////////////////////////////////
     // Setters
     ///////////////////////////////////////////////////////////////////////////
@@ -83,6 +91,11 @@ public class DebugDisplayOptions extends ImplOptions<DebugDisplayOptions> {
 
     public DebugDisplayOptions setZFighting(boolean zFighting) {
         this.zFighting = zFighting;
+        return this;
+    }
+
+    public DebugDisplayOptions setGlowing(boolean glowing) {
+        this.glowing = glowing;
         return this;
     }
 

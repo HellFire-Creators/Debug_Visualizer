@@ -4,6 +4,7 @@ import com.hellfire.net.debug_visualizer.MathUtil;
 import com.hellfire.net.debug_visualizer.options.ImplOptions;
 import com.hellfire.net.debug_visualizer.visualizers.DebugVisualizer;
 import com.hellfire.net.debug_visualizer.visualizers.VisualizerElement;
+import com.hellfire.net.debug_visualizer.visualizers.VisualizerElementCollection;
 import net.minestom.server.coordinate.Pos;
 import net.minestom.server.coordinate.Vec;
 import net.minestom.server.entity.Entity;
@@ -14,6 +15,7 @@ import net.minestom.server.instance.block.Block;
 import net.minestom.server.network.packet.server.play.DestroyEntitiesPacket;
 import net.minestom.server.network.packet.server.play.EntityMetaDataPacket;
 import net.minestom.server.network.packet.server.play.SpawnEntityPacket;
+import net.minestom.server.utils.Direction;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.UUID;
@@ -22,7 +24,7 @@ import java.util.function.Consumer;
 /* Created by Conor on 03.10.2024 */
 public class DebugDisplayVisualizer extends DebugVisualizer {
 
-    private static final double LINE_THICKNESS = 0.1d;
+    private static final double MIN_THICKNESS = 0.1d;
 
     @Override
     public VisualizerElement createArea(@NotNull Vec cornerA, @NotNull Vec cornerB) {
@@ -34,10 +36,8 @@ public class DebugDisplayVisualizer extends DebugVisualizer {
             @Override
             protected void draw(@NotNull Player player, ImplOptions<?> options) {
                 final DebugDisplayOptions op = (DebugDisplayOptions) options;
-                final Block block = getBlock(op);
 
-                final Entity ent = getEntity((meta) -> {
-                    meta.setBlockState(block);
+                final Entity ent = getEntity(op, (meta) -> {
                     meta.setScale(cB.sub(cA).add((op.isZFighting()) ? 0.02f : 0));
                 });
 
@@ -53,14 +53,9 @@ public class DebugDisplayVisualizer extends DebugVisualizer {
     }
 
     @Override
-    protected VisualizerElement createPlaneImpl(@NotNull Vec cornerA, @NotNull Vec cornerB, @NotNull Vec cornerC, @NotNull Vec cornerD) {
-        return null;
-    }
-
-    @Override
     public VisualizerElement createLine(@NotNull Vec posA, @NotNull Vec posB) {
-                                                                                                     // These checks are stupid...
-        double pitch = Math.atan((posA.x() - posB.x()) / (posA.z() - posB.z()))                * ((posB.x() < posA.x()) ? -1 : 1) * ((posB.y() > posA.y()) ? -1 : 1); // Y
+        // These checks are stupid...
+        double pitch = Math.atan((posA.x() - posB.x()) / (posA.z() - posB.z())) * ((posB.x() < posA.x()) ? -1 : 1) * ((posB.y() > posA.y()) ? -1 : 1); // Y
         double roll = Math.atan((posA.distance(posB.withY(posA.y()))) / (posB.y() - posA.y())) * ((posB.z() < posA.z()) ? -1 : 1) * ((posB.y() > posA.y()) ? -1 : 1); // X
         double yaw = calcYaw(posA, posB);
 
@@ -70,12 +65,9 @@ public class DebugDisplayVisualizer extends DebugVisualizer {
             @Override
             protected void draw(@NotNull Player player, ImplOptions<?> options) {
                 final DebugDisplayOptions op = (DebugDisplayOptions) options;
-                final Block block = getBlock(op);
 
-                final Entity ent = getEntity((meta) -> {
-                    meta.setBlockState(block);
-
-                    meta.setScale(new Vec(LINE_THICKNESS, posA.distance(posB), LINE_THICKNESS));
+                final Entity ent = getEntity(op, (meta) -> {
+                    meta.setScale(new Vec(MIN_THICKNESS, posA.distance(posB), MIN_THICKNESS));
                     meta.setLeftRotation(MathUtil.eulerAngleToQuaternion(roll, pitch + Math.PI, yaw));
                 });
 
@@ -103,12 +95,18 @@ public class DebugDisplayVisualizer extends DebugVisualizer {
         return op.getState().converter.apply(op.getDebugColor());
     }
 
-    private static Entity getEntity(Consumer<BlockDisplayMeta> edit) {
+    private static Entity getEntity(DebugDisplayOptions op, Consumer<BlockDisplayMeta> edit) {
         final Entity ent = new Entity(EntityType.BLOCK_DISPLAY);
         ent.setVelocity(Vec.ZERO);
+
+        // Default values
         ent.editEntityMeta(BlockDisplayMeta.class, (meta) -> {
             meta.setBrightnessOverride(-1);
             meta.setHasNoGravity(true);
+            meta.setBlockState(getBlock(op));
+            meta.setHasGlowingEffect(op.isGlowing());
+            meta.setGlowColorOverride(op.getDebugColor().getHexCode());
+            meta.setShadowStrength(0);
 
             edit.accept(meta);
         });
