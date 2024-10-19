@@ -2,11 +2,14 @@ package com.hellfire.net.debug_visualizer.visualizers;
 
 import com.hellfire.net.debug_visualizer.MathUtil;
 import com.hellfire.net.debug_visualizer.VisualSupervisor;
+import com.hellfire.net.debug_visualizer.impl.displayblock.DebugDisplayOptions;
+import com.hellfire.net.debug_visualizer.impl.displayblock.DebugDisplayVisualizer;
 import com.hellfire.net.debug_visualizer.impl.particles.DebugParticleOptions;
 import com.hellfire.net.debug_visualizer.impl.particles.DebugParticleVisualizer;
 import com.hellfire.net.debug_visualizer.options.DebugColor;
 import com.hellfire.net.debug_visualizer.options.ImplOptions;
 import net.minestom.server.coordinate.Vec;
+import net.minestom.server.utils.Direction;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -67,54 +70,31 @@ public class Shape {
 
         // Mathematically unstable otherwise!
         if (dir.abs().normalize().angle(STD_PLANE_DIR) < PLANE_DIR_DIFF_THRESHOLD) {
-            final Vec a = dA.rotateAroundAxis(dir, rot);
-            final Vec b = dB.rotateAroundAxis(dir, rot);
-            final Vec c = dC.rotateAroundAxis(dir, rot);
-            final Vec d = dD.rotateAroundAxis(dir, rot);
-
-            return new Shape(
-                    options,
-                    (vis) -> List.of(vis.createPlane(
-                            a.add(center),
-                            b.add(center),
-                            c.add(center),
-                            d.add(center)
-                    ))
+            return createPlaneDef(
+                    dA.rotateAroundAxis(dir, rot),
+                    dB.rotateAroundAxis(dir, rot),
+                    dC.rotateAroundAxis(dir, rot),
+                    dD.rotateAroundAxis(dir, rot),
+                    center,
+                    options
             );
         }
 
         // Rotate plane, so that normal = dir
-        final double posRot = dir.angle(STD_PLANE_DIR);
-        final Vec rotAxis = STD_PLANE_DIR.cross(dir).normalize();
-
-        final Vec bA = dA.rotateAroundAxis(rotAxis, posRot);
-        final Vec bB = dB.rotateAroundAxis(rotAxis, posRot);
-        final Vec bC = dC.rotateAroundAxis(rotAxis, posRot);
-        final Vec bD = dD.rotateAroundAxis(rotAxis, posRot);
+        final Vec[] initRot = initialPlaneRot(dA, dB, dC, dD, dir);
 
         // Correct to expected std (a and b / c and d should have the same y value)
-        final Vec bottomCenter = bD.sub(bC).div(2).add(bC); // Vec from center to bottom center
-        final boolean isBelow = (bottomCenter.normalize().abs().equals(new Vec(0, 1, 0)));  // If bottomcenter is directly below center
-        final double correctionRot = (isBelow) ? 0 : MathUtil.planeLineIntersection(
-                center, center.add(dir), center.sub(0, 1, 0),   // Plane
-                bD.sub(bC), bC  // Line
-        ).angle(bottomCenter);
+        final Vec iA = initRot[0], iB = initRot[1], iC = initRot[2], iD = initRot[3];
+        final double correctionRot = correctRotation(iA, iB, iC, iD, dir, center);
+        System.out.printf("Cor: %.2f >> %.2f°\n", correctionRot, Math.toDegrees(correctionRot));
 
         // Correct and rotate
-        final Vec a = bA.rotateAroundAxis(dir, correctionRot + rot);
-        final Vec b = bB.rotateAroundAxis(dir, correctionRot + rot);
-        final Vec c = bC.rotateAroundAxis(dir, correctionRot + rot);
-        final Vec d = bD.rotateAroundAxis(dir, correctionRot + rot);
+        final Vec a = iA.rotateAroundAxis(dir, correctionRot + rot);
+        final Vec b = iB.rotateAroundAxis(dir, correctionRot + rot);
+        final Vec c = iC.rotateAroundAxis(dir, correctionRot + rot);
+        final Vec d = iD.rotateAroundAxis(dir, correctionRot + rot);
 
-        return new Shape(
-                options,
-                (vis) -> List.of(vis.createPlane(
-                    a.add(center),
-                    b.add(center),
-                    c.add(center),
-                    d.add(center)
-                ))
-        );
+        return createPlaneDef(a, b, c, d, center, options);
     }
 
     public static Shape createLine(final @NotNull Vec cornerA, final @NotNull Vec cornerB, final @Nullable ImplOptions<?>... options) {
@@ -143,6 +123,59 @@ public class Shape {
         }
 
         return elems;
+    }
+
+    /*                    Plane code                    */
+
+    private static Shape createPlaneDef(Vec a, Vec b, Vec c, Vec d, Vec center, ImplOptions<?>... options) {
+        return new Shape(
+                options,
+                (vis) -> List.of(vis.createPlane(
+                        a.add(center),
+                        b.add(center),
+                        c.add(center),
+                        d.add(center)
+                ))
+        );
+    }
+
+    private static Vec[] initialPlaneRot(Vec a, Vec b, Vec c, Vec d, Vec dir) {
+        final double posRot = dir.angle(STD_PLANE_DIR);
+        final Vec rotAxis = STD_PLANE_DIR.cross(dir).normalize();
+
+        final Vec[] res = new Vec[4];
+        res[0] = a.rotateAroundAxis(rotAxis, posRot);
+        res[1] = b.rotateAroundAxis(rotAxis, posRot);
+        res[2] = c.rotateAroundAxis(rotAxis, posRot);
+        res[3] = d.rotateAroundAxis(rotAxis, posRot);
+        return res;
+    }
+
+    private static double correctRotation(Vec a, Vec b, Vec c, Vec d, Vec dir, Vec center) {
+        // Assuming rot = 0:
+        final Vec bottomCenter = d.sub(c).div(2).add(c);                                        // Vec from center to bottom center
+
+        // a.x / b.x > c.x / d.x
+        if (dir.abs().normalize().equals(Direction.UP.vec())) {
+            final boolean isBelow = (bottomCenter.normalize().abs().equals(Direction.SOUTH.vec()));
+            final double correctionRot = (isBelow) ? 0 : MathUtil.planeLineIntersection(
+                    center, center.add(dir), center.sub(0, 0, 1),
+                    d.sub(c), c
+            ).angle(bottomCenter);
+
+            return correctionRot;
+        }
+
+        // a.y / b.y > c.y / d.y
+        else {
+            final boolean isBelow = (bottomCenter.normalize().abs().equals(Direction.UP.vec()));  // If bottomcenter is directly below center
+            final double correctionRot = (isBelow) ? 0 : MathUtil.planeLineIntersection(
+                    center, center.add(dir), center.sub(0, 1, 0),   // Plane
+                    d.sub(c), c  // Line
+            ).angle(bottomCenter);
+
+            return correctionRot;
+        }
     }
 }
 
