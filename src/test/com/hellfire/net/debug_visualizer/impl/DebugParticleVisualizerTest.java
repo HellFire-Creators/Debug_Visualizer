@@ -52,88 +52,30 @@ public class DebugParticleVisualizerTest {
 
             MinecraftServer.getSchedulerManager().scheduleTask(
                     () -> createBlock(new Vec(0, 43, 0), player),
-                    TaskSchedule.seconds(2),
+                    TaskSchedule.seconds(1),
                     TaskSchedule.stop()
             );
         });
     }
 
     public static void createBlock(Vec position, Player player) {
-        final DebugVisualizer visualizer = new DebugDisplayVisualizer();
+        double rot = 263;
+        Vec dir = new Vec(1, 1, 1);
 
-        final Vec start = new Vec(3, 50, 3);
-        final Vec[] ends = new Vec[]{
-                new Vec(5, 56, 8),      // ✔
-                new Vec(7, 56, -15),    // ✔
-                new Vec(-5, 56, 2),     // ✔
-                new Vec(-7, 56, -15),   // ✔
-
-                new Vec(5, 42, 8),      // ✔
-                new Vec(7, 42, -15),    // ✔
-                new Vec(-5, 42, 2),     // ✔
-                new Vec(-7, 42, -15),   // ✔
-        };
-
-        final VisualizerElementCollection.Builder builder = VisualizerElementCollection.builder()
-//                .addElement(Shape.createPlane(
-//                        8, 4,
-//                        new Vec(0, 42, 7),
-//                        new Vec(1, 0, 0), 45
-//                ))
-                .addElement(Shape.createBlock(
-                        position,
-                        DebugParticleOptions.createWithColor(DebugColor.DARK_BLUE),
-                        DebugModOptions.createPrimaryColor(DebugColor.DARK_BLUE),
-                        DebugDisplayOptions.createWithState(DebugDisplayOptions.StateOption.CONCRETE)
+        VisualizerElementCollection.builder()
+                .addElement(Shape.createPlane(
+                        8, 4,
+                        new Vec(0, 46, 5),
+                        dir, rot
                 ))
-                .addElement(Shape.createArea(
-                        new Vec(10, 50, 10), new Vec(5, 45, 5)
-                ))
-                .addElement(Shape.createLine(
-                        new Vec(-5, 40, -5), new Vec(-7, 40, -5),
-                        DebugDisplayOptions.createWithState(DebugDisplayOptions.StateOption.CONCRETE)
-                ));
-
-        for (Vec end : ends) {
-            builder
-                    .addElement(Shape.createLine(start, end, DebugDisplayOptions.createWithState(DebugDisplayOptions.StateOption.CONCRETE)))
-                    .addElement(Shape.createArea(end.sub(0.1), end.add(0.1), DebugDisplayOptions.createWithColor(DebugColor.YELLOW)));
-        }
-
-        builder.build().draw(VisualSupervisor.STD.create(player, visualizer));
+                .build().draw(VisualSupervisor.STD.create(player, new DebugDisplayVisualizer()));
 
 
         VisualizerElementCollection.builder()
-                .addElement(Shape.createLine(
-                        start, start.add(10, 0, 0),
-                        DebugParticleOptions.createWithDensity(0.1).setColor(DebugColor.RED)
-                ))
-                .addElement(Shape.createLine(
-                        start, start.add(0, 10, 0),
-                        DebugParticleOptions.createWithDensity(0.1).setColor(DebugColor.GREEN)
-                ))
-                .addElement(Shape.createLine(
-                        start, start.add(0, 0, 10),
-                        DebugParticleOptions.createWithDensity(0.1).setColor(DebugColor.BLUE)
-                ))
-                .addElement(Shape.createArea(
-                        start.sub(0.2), start.add(0.2),
-                        DebugParticleOptions.createWithColor(DebugColor.BLACK)
-                ))
                 .addElement(Shape.createPlane(
                         8, 4,
-                        new Vec(0, 42, 5),
-                        new Vec(0.01, 0, 1), 0,
-                        DebugParticleOptions.createWithDensity(0.1).setFillDensity(0.3)
-                ))
-                .addElement(Shape.createPlane(
-                        8, 4,
-                        new Vec(-10, 42, -10),
-                        new Vec(1, 1, 1), 0,
-                        DebugParticleOptions.createWithDensity(0.1).setFillDensity(0.3)
-                ))
-                .addElement(Shape.createArea(
-                        new Vec(-12, 40, -12), new Vec(-13, 42, -13),
+                        new Vec(0, 44, 5),
+                        dir, rot,
                         DebugParticleOptions.createWithDensity(0.1).setFillDensity(0.3)
                 ))
                 .build().draw(VisualSupervisor.STD.create(player, new DebugParticleVisualizer()));

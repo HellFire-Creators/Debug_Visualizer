@@ -58,7 +58,7 @@ public final class MathUtil {
         double z = cycw * sz - sysz * cz;
         double w = cycw * cz + sysz * sz;
 
-        return new float[] {(float) x, (float) y, (float) z, (float) w};
+        return new float[]{(float) x, (float) y, (float) z, (float) w};
     }
 
     // https://github.com/JOML-CI/JOML/blob/main/src/main/java/org/joml/Math.java
@@ -66,12 +66,25 @@ public final class MathUtil {
         // sin(x)^2 + cos(x)^2 = 1
         double cos = Math.sqrt(1.0 - sin * sin);
         double a = angle + PI_OVER_2;
-        double b = a - (int)(a / PI_TIMES_2) * PI_TIMES_2;
+        double b = a - (int) (a / PI_TIMES_2) * PI_TIMES_2;
         if (b < 0.0)
             b = PI_TIMES_2 + b;
         if (b >= Math.PI)
             return -cos;
         return cos;
+    }
+
+    // https://github.com/JOML-CI/JOML/blob/main/src/main/java/org/joml/Quaterniond.java#L1446
+    public static Vec applyQuaternion(float[] q, Vec v) {
+        final double x = v.x(), y = v.y(), z = v.z();
+        double xx = q[0] * q[0], yy = q[1] * q[1], zz = q[2] * q[2], ww = q[3] * q[3];
+        double xy = q[0] * q[1], xz = q[0] * q[2], yz = q[1] * q[2], xw = q[0] * q[3];
+        double zw = q[2] * q[3], yw = q[1] * q[3], k = 1 / (xx + yy + zz + ww);
+        return new Vec(
+                Math.fma((xx - yy - zz + ww) * k, x, Math.fma(2 * (xy - zw) * k, y, (2 * (xz + yw) * k) * z)),
+                Math.fma(2 * (xy + zw) * k, x, Math.fma((yy - xx - zz + ww) * k, y, (2 * (yz - xw) * k) * z)),
+                Math.fma(2 * (xz - yw) * k, x, Math.fma(2 * (yz + xw) * k, y, ((zz - xx - yy + ww) * k) * z))
+        );
     }
 
     private static void normalize(float[] q) {
