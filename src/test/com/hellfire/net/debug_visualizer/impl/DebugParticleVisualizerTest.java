@@ -1,13 +1,7 @@
 package com.hellfire.net.debug_visualizer.impl;
 
 import com.hellfire.net.debug_visualizer.VisualSupervisor;
-import com.hellfire.net.debug_visualizer.impl.debugmod.DebugModOptions;
-import com.hellfire.net.debug_visualizer.impl.displayblock.DebugDisplayOptions;
 import com.hellfire.net.debug_visualizer.impl.displayblock.DebugDisplayVisualizer;
-import com.hellfire.net.debug_visualizer.impl.particles.DebugParticleOptions;
-import com.hellfire.net.debug_visualizer.impl.particles.DebugParticleVisualizer;
-import com.hellfire.net.debug_visualizer.options.DebugColor;
-import com.hellfire.net.debug_visualizer.visualizers.DebugVisualizer;
 import com.hellfire.net.debug_visualizer.visualizers.Shape;
 import com.hellfire.net.debug_visualizer.visualizers.VisualizerElementCollection;
 import net.minestom.server.MinecraftServer;
@@ -20,7 +14,6 @@ import net.minestom.server.instance.InstanceContainer;
 import net.minestom.server.instance.InstanceManager;
 import net.minestom.server.instance.LightingChunk;
 import net.minestom.server.instance.block.Block;
-import net.minestom.server.particle.Particle;
 import net.minestom.server.timer.TaskSchedule;
 
 public class DebugParticleVisualizerTest {
@@ -58,27 +51,17 @@ public class DebugParticleVisualizerTest {
         });
     }
 
+    // x,y contain the 2D coords
+    // z contains the scalar
+    private static Vec projectPoint(Vec point, Vec dir, Vec e1, Vec e2) {
+        final double s = dir.dot(point);
+        final double x = e1.dot(point);
+        final double y = e2.dot(point);
+        return new Vec(x, y, s);
+    }
+
     public static void createBlock(Vec position, Player player) {
-        double rot = 263;
-        Vec dir = new Vec(1, 1, 1);
 
-        VisualizerElementCollection.builder()
-                .addElement(Shape.createPlane(
-                        8, 4,
-                        new Vec(0, 46, 5),
-                        dir, rot
-                ))
-                .build().draw(VisualSupervisor.STD.create(player, new DebugDisplayVisualizer()));
-
-
-        VisualizerElementCollection.builder()
-                .addElement(Shape.createPlane(
-                        8, 4,
-                        new Vec(0, 44, 5),
-                        dir, rot,
-                        DebugParticleOptions.createWithDensity(0.1).setFillDensity(0.3)
-                ))
-                .build().draw(VisualSupervisor.STD.create(player, new DebugParticleVisualizer()));
     }
 
 }

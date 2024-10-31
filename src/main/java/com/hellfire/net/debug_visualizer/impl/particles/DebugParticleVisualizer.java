@@ -1,14 +1,8 @@
 package com.hellfire.net.debug_visualizer.impl.particles;
 
-import com.hellfire.net.debug_visualizer.VisualSupervisor;
-import com.hellfire.net.debug_visualizer.impl.displayblock.DebugDisplayOptions;
-import com.hellfire.net.debug_visualizer.impl.displayblock.DebugDisplayVisualizer;
-import com.hellfire.net.debug_visualizer.options.DebugColor;
 import com.hellfire.net.debug_visualizer.options.ImplOptions;
 import com.hellfire.net.debug_visualizer.visualizers.DebugVisualizer;
-import com.hellfire.net.debug_visualizer.visualizers.Shape;
 import com.hellfire.net.debug_visualizer.visualizers.VisualizerElement;
-import com.hellfire.net.debug_visualizer.visualizers.VisualizerElementCollection;
 import net.minestom.server.MinecraftServer;
 import net.minestom.server.coordinate.Vec;
 import net.minestom.server.entity.Player;
@@ -77,7 +71,7 @@ public class DebugParticleVisualizer extends DebugVisualizer {
     }
 
     @Override
-    protected VisualizerElement createPlane(Vec a, Vec b, Vec c, Vec d) {
+    protected VisualizerElement createPlane(Vec a, Vec b, Vec c, Vec d, double rot) {
         return new VisualizerElement() {
             private Task task;
 

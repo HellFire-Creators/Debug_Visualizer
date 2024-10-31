@@ -91,7 +91,7 @@ public class DebugModVisualizer extends DebugVisualizer {
     }
 
     @Override
-    protected VisualizerElement createPlane(Vec a, Vec b, Vec c, Vec d) {
+    protected VisualizerElement createPlane(Vec a, Vec b, Vec c, Vec d, double rot) {
         final NamespaceID ns = getRandomNamespaceID("plane");
         return new VisualizerElement() {
 

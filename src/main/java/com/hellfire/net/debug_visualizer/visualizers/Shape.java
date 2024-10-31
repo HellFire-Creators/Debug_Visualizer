@@ -1,19 +1,12 @@
 package com.hellfire.net.debug_visualizer.visualizers;
 
 import com.hellfire.net.debug_visualizer.MathUtil;
-import com.hellfire.net.debug_visualizer.VisualSupervisor;
-import com.hellfire.net.debug_visualizer.impl.displayblock.DebugDisplayOptions;
-import com.hellfire.net.debug_visualizer.impl.displayblock.DebugDisplayVisualizer;
-import com.hellfire.net.debug_visualizer.impl.particles.DebugParticleOptions;
-import com.hellfire.net.debug_visualizer.impl.particles.DebugParticleVisualizer;
-import com.hellfire.net.debug_visualizer.options.DebugColor;
 import com.hellfire.net.debug_visualizer.options.ImplOptions;
 import net.minestom.server.coordinate.Vec;
 import net.minestom.server.utils.Direction;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.security.InvalidParameterException;
 import java.util.*;
 import java.util.function.Function;
 
@@ -76,6 +69,7 @@ public class Shape {
                     dC.rotateAroundAxis(dir, rot),
                     dD.rotateAroundAxis(dir, rot),
                     center,
+                    rot,
                     options
             );
         }
@@ -93,7 +87,7 @@ public class Shape {
         final Vec c = iC.rotateAroundAxis(dir, correctionRot + rot);
         final Vec d = iD.rotateAroundAxis(dir, correctionRot + rot);
 
-        return createPlaneDef(a, b, c, d, center, options);
+        return createPlaneDef(a, b, c, d, center, rot, options);
     }
 
     public static Shape createLine(final @NotNull Vec cornerA, final @NotNull Vec cornerB, final @Nullable ImplOptions<?>... options) {
@@ -127,14 +121,15 @@ public class Shape {
     /*                    Plane code                    */
     // Conor-19.10.2024: SO MUCH MATH
 
-    private static Shape createPlaneDef(Vec a, Vec b, Vec c, Vec d, Vec center, ImplOptions<?>... options) {
+    private static Shape createPlaneDef(Vec a, Vec b, Vec c, Vec d, Vec center, double rot, ImplOptions<?>... options) {
         return new Shape(
                 options,
                 (vis) -> List.of(vis.createPlane(
                         a.add(center),
                         b.add(center),
                         c.add(center),
-                        d.add(center)
+                        d.add(center),
+                        rot
                 ))
         );
     }

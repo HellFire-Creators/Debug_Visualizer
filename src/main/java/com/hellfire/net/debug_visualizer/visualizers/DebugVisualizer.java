@@ -25,24 +25,22 @@ public abstract class DebugVisualizer {
      */
     public abstract VisualizerElement createArea(final @NotNull Vec cornerA, final @NotNull Vec cornerB);
 
-    // Conor-18.10.2024
-    // Todo:
-    //  Fix docu!
     /**
      * Creates a plane centered on a point facing a specified direction.
+     *
+     * @param a corner of the plane
+     * @param b corner of the plane
+     * @param c corner of the plane
+     * @param d corner of the plane
+     * @param rot rotation around the normal vec of the plane
+     * @return a {@link VisualizerElement} representing the plane
      * @implNote Assuming that <code>rot</code> is equal to <code>0</code>, then following statements must hold: <br>
      * - a and b / c and d will have the same y-value <br>
      * - a.y = b.y > c.y = d.y <br>
      * If the plane is facing up/down-wards, then following holds: <br>
      * - a.z = b.z < c.z = d.z
-     *
-     * @param center center of the plane
-     * @param dir the direction the plane is facing
-     * @param width the width of the plane
-     * @param length the length of the plane
-     * @return a {@link VisualizerElement} representing the plane
      */
-    protected abstract VisualizerElement createPlane(Vec a, Vec b, Vec c, Vec d);
+    protected abstract VisualizerElement createPlane(Vec a, Vec b, Vec c, Vec d, double rot);
 
     /**
      * Creates a line between two specified positions.
