@@ -39,21 +39,18 @@ public class Shape {
     }
 
     public static Shape createBlock(final @NotNull Vec position, final @Nullable ImplOptions<?>... options) {
-        return new Shape(
-                options,
-                (vis) -> List.of(vis.createArea(
-                        position.add(0.5, 0, 0.5), Vec.ONE,
-                        Direction.UP.vec(), 0
-                ))
-        );
+        return createBlockArea(position, position, options);
     }
 
-    public static Shape createBlockArea(final @NotNull Vec cornerA, final @NotNull Vec cornerB, final @Nullable ImplOptions<?>... options) {
-        final Vec ab = cornerB.sub(cornerA);
+    public static Shape createBlockArea(final @NotNull Vec cornerA, final @NotNull Vec cornerB, final @Nullable ImplOptions<?>... options)  {
+        final Vec cA = cornerA.min(cornerB);
+        final Vec cB = cornerA.max(cornerB).add(1);
+
+        final Vec ab = cB.sub(cA);
         return new Shape(
                 options,
                 (vis) -> List.of(vis.createArea(
-                        ab.div(2).add(cornerA), ab.abs(),
+                        ab.withY(0).div(2).add(cA), ab.abs(),
                         Direction.UP.vec(), 0
                 ))
         );
