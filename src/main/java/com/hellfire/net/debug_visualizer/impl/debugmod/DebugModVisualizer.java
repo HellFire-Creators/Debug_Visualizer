@@ -73,25 +73,12 @@ public class DebugModVisualizer extends DebugVisualizer {
     }
 
     @Override
-    public VisualizerElement createArea(@NotNull Vec cornerA, @NotNull Vec cornerB) {
-        final NamespaceID ns = getRandomNamespaceID("area");
-        return new VisualizerElement() {
-
-            @Override
-            public void draw(@NotNull Player player, @NotNull ImplOptions<?> options) {
-                final DebugModOptions op = (DebugModOptions) options;
-                sendBoxShape(ns, player, op, cornerA, cornerB);
-            }
-
-            @Override
-            public void clear(@NotNull Player player) {
-                DebugMessage.builder().remove(ns).build().sendTo(player);
-            }
-        };
+    public VisualizerElement createArea(@NotNull Vec bottomCenter, @NotNull Vec dim, @NotNull Vec dir, double angle) {
+        return null;
     }
 
     @Override
-    protected VisualizerElement createPlane(Vec a, Vec b, Vec c, Vec d, double rot) {
+    public VisualizerElement createPlane(Vec a, Vec b, Vec c, Vec d, double rot) {
         final NamespaceID ns = getRandomNamespaceID("plane");
         return new VisualizerElement() {
 

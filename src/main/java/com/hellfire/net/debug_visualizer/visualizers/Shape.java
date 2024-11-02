@@ -67,7 +67,8 @@ public class Shape {
         );
     }
 
-    public static Shape createPlane(final double width, final double height, final @NotNull Vec center, final @NotNull Vec dir, double rot, final @Nullable ImplOptions<?>... options) {
+    public static Shape createPlane(final double width, final double height, final @NotNull Vec center, final @NotNull Vec dir, double rot,
+                                    final @Nullable ImplOptions<?>... options) {
         if (dir.equals(Vec.ZERO)) throw new IllegalArgumentException("The direction must not be zero!");
         if (width <= 0 || height <= 0) throw new IllegalArgumentException("The width and height must be positive!");
         rot = Math.toRadians(rot % 360);
