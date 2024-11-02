@@ -58,9 +58,11 @@ public class DebugParticleVisualizerTest {
     }
 
     private static void runTests(Player player, Instance world) {
+        spawnLines(player, world);
         spawnPoints(player, world);
         spawnBlocks(player, world);
         spawnAreas(player, world);
+        spawnPlanes(player, world);
     }
 
     ///////////////////////////////////////////////////////////////////////////
@@ -93,16 +95,24 @@ public class DebugParticleVisualizerTest {
     }
 
     private static void spawnAreas(Player p, Instance w) {
-        w.setBlock(-3, 40, 3, Block.STONE);
+        w.setBlock(-3, 40, 12, Block.STONE);
+        fillArea(new Vec(-2, 40, 9), new Vec(-2, 40, 10), Block.STONE, w);
+        fillArea(new Vec(-2, 40, 7), new Vec(-3, 40, 7), Block.STONE, w);
+        fillArea(new Vec(-2, 40, 3), new Vec(-3, 40, 5), Block.STONE, w);
         fillArea(new Vec(-5, 40, 3), new Vec(-6, 40, 4), Block.STONE, w);
         fillArea(new Vec(-8, 40, 3), new Vec(-9, 40, 5), Block.STONE, w);
         fillArea(new Vec(-11, 40, 3), new Vec(-13, 40, 4), Block.STONE, w);
-        fillArea(new Vec(-15, 40, 3), new Vec(-16, 40, 4), Block.STONE, w);
+        fillArea(new Vec(-5, 40, 7), new Vec(-6, 40, 8), Block.STONE, w);
+        fillArea(new Vec(-8, 40, 7), new Vec(-9, 40, 9), Block.STONE, w);
+        fillArea(new Vec(-11, 40, 7), new Vec(-13, 40, 8), Block.STONE, w);
 
         final VisualizerElementCollection.Builder b = VisualizerElementCollection.builder();
 
         // Spawn blocky area
-        b.addElement(Shape.createBlockArea(new Vec(-2, 41, 3), new Vec(-3, 43, 4)));
+        b.addElement(Shape.createBlockArea(new Vec(-2, 41, 3), new Vec(-3, 43, 5)));
+        b.addElement(Shape.createBlockArea(new Vec(-2, 41, 7), new Vec(-3, 41, 7)));
+        b.addElement(Shape.createBlockArea(new Vec(-2, 41, 9), new Vec(-2, 42, 10)));
+        b.addElement(Shape.createBlockArea(new Vec(-3, 41, 12), new Vec(-3, 44, 12)));
 
         // Spawn non-rotated area
         b.addElement(Shape.createArea(
@@ -122,22 +132,86 @@ public class DebugParticleVisualizerTest {
 
         // Spawn rotated area
         b.addElement(Shape.createArea(
-                new Vec(-15, 41, 4), new Vec(2, 3, 2),
+                new Vec(-5, 41, 8), new Vec(2, 3, 2),
                 Direction.UP.vec(), 45
+        ));
+
+        b.addElement(Shape.createArea(
+                new Vec(-8, 42, 7), new Vec(2, 3, 2),
+                Direction.SOUTH.vec(), 45
+        ));
+
+        b.addElement(Shape.createArea(
+                new Vec(-10, 42, 8), new Vec(2, 3, 2),
+                Direction.WEST.vec(), 45
         ));
 
 
         b.build().draw(VisualSupervisor.STD.create(p, new DebugParticleVisualizer()));
     }
 
-    public static void createBlock(Vec position, Player player) {
-        VisualizerElementCollection.builder()
-                .addElement(Shape.createArea(
-                        new Vec(3, 44, 8), new Vec(3, 5, 3),
-                        new Vec(0, -1, 0), 45,
-                        DebugParticleOptions.createWithDensity(0.2)
-                ))
-                .build().draw(VisualSupervisor.STD.create("Conorsmine", new DebugParticleVisualizer()));
+    private static void spawnPlanes(Player p, Instance w) {
+        w.setBlock(0, 40, -8, Block.STONE);
+        w.setBlock(0, 40, -10, Block.STONE);
+        w.setBlock(0, 40, -12, Block.STONE);
+        w.setBlock(0, 40, -14, Block.STONE);
+        w.setBlock(0, 40, -16, Block.STONE);
+        w.setBlock(2, 40, -8, Block.STONE);
+        w.setBlock(2, 40, -10, Block.STONE);
+        w.setBlock(2, 40, -12, Block.STONE);
+        w.setBlock(2, 40, -14, Block.STONE);
+        w.setBlock(2, 40, -16, Block.STONE);
+
+        fillArea(new Vec(5, 40, -8), new Vec(5, 40, -9), Block.STONE, w);
+        fillArea(new Vec(7, 40, -8), new Vec(8, 40, -9), Block.STONE, w);
+
+        VisualizerElementCollection.Builder b = VisualizerElementCollection.builder();
+
+        // Single planes
+        b.addElement(Shape.createPlane(1, 1, new Vec(0.5, 41, -7.5), Direction.UP.vec(), 0));
+        b.addElement(Shape.createPlane(1, 1, new Vec(2.5, 41, -7.5), Direction.UP.vec(), 45));
+
+        b.addElement(Shape.createPlane(1, 1, new Vec(0.5, 41, -9.5), Direction.DOWN.vec(), 0));
+        b.addElement(Shape.createPlane(1, 1, new Vec(2.5, 41, -9.5), Direction.DOWN.vec(), 45));
+
+        b.addElement(Shape.createPlane(1, 1, new Vec(0.5, 41.5, -11.5), Direction.SOUTH.vec(), 0));
+        b.addElement(Shape.createPlane(1, 1, new Vec(2.5, 41.5, -11.5), Direction.SOUTH.vec(), 45));
+
+        b.addElement(Shape.createPlane(1, 1, new Vec(0.5, 41.5, -13.5), Direction.WEST.vec(), 0));
+        b.addElement(Shape.createPlane(1, 1, new Vec(2.5, 41.5, -13.5), Direction.WEST.vec(), 45));
+
+        // Incorrect rotation!!!
+        b.addElement(Shape.createPlane(1, 1, new Vec(0.5, 41.5, -15.5), new Vec(1, -1, -1), 0));
+        b.addElement(Shape.createPlane(1, 1, new Vec(2.5, 41.5, -15.5), new Vec(1, -1, -1), 45));
+
+        // Larger planes
+        b.addElement(Shape.createPlane(1, 2, new Vec(5.5, 41, -8), Direction.UP.vec(), 0));
+        b.addElement(Shape.createPlane(1, 2, new Vec(8, 41, -8), Direction.UP.vec(), 45));
+
+
+        b.build().draw(VisualSupervisor.STD.create(p, new DebugParticleVisualizer()));
+    }
+
+    private static void spawnLines(Player p, Instance w) {
+        fillArea(new Vec(-3, 40, -8), new Vec(-5, 40, -8), Block.STONE, w);
+        fillArea(new Vec(-4, 40, -10), new Vec(-4, 40, -12), Block.STONE, w);
+
+        w.setBlock(-4, 40, -14, Block.STONE);
+        w.setBlock(-7, 40, -8, Block.STONE);
+        w.setBlock(-8, 40, -9, Block.STONE);
+        w.setBlock(-9, 40, -10, Block.STONE);
+
+        VisualizerElementCollection.Builder b = VisualizerElementCollection.builder();
+
+        // Dir lines
+        b.addElement(Shape.createLine(new Vec(-2.5, 41, -7.5), new Vec(-4.3, 41, -7.5)));
+        b.addElement(Shape.createLine(new Vec(-3.5, 41, -9.5), new Vec(-3.5, 41, -11.5)));
+        b.addElement(Shape.createLine(new Vec(-3.5, 41, -13.5), new Vec(-3.5, 43, -13.5)));
+
+        // Diag lines
+        b.addElement(Shape.createLine(new Vec(-6.5, 41, -7.5), new Vec(-8.5, 41, -9.5)));
+
+        b.build().draw(VisualSupervisor.STD.create(p, new DebugParticleVisualizer()));
     }
 
     /*                    Helper funcs                    */
