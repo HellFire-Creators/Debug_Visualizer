@@ -56,10 +56,10 @@ public class DebugParticleVisualizer extends DebugVisualizer {
         final double correctionRot = (dir.abs().equals(STD_AREA_DIR)) ? 0 : bbc.normalize().angle(tbc.normalize());
 
         // In this step, we also apply the actual/final rotation
-        final Vec fA = dA.rotateAroundAxis(dir, Math.toRadians(angle)).add(bottomCenter);
-        final Vec fB = dB.rotateAroundAxis(dir, Math.toRadians(angle)).add(bottomCenter);
-        final Vec fC = dC.rotateAroundAxis(dir, Math.toRadians(angle)).add(bottomCenter);
-        final Vec fD = dD.rotateAroundAxis(dir, Math.toRadians(angle)).add(bottomCenter);
+        final Vec fA = dA.rotateAroundAxis(dir, correctionRot + Math.toRadians(angle)).add(bottomCenter);
+        final Vec fB = dB.rotateAroundAxis(dir, correctionRot + Math.toRadians(angle)).add(bottomCenter);
+        final Vec fC = dC.rotateAroundAxis(dir, correctionRot + Math.toRadians(angle)).add(bottomCenter);
+        final Vec fD = dD.rotateAroundAxis(dir, correctionRot + Math.toRadians(angle)).add(bottomCenter);
 
         // Calc other side
         final Vec fE = fA.add(dir.mul(height)), fF = fB.add(dir.mul(height));
