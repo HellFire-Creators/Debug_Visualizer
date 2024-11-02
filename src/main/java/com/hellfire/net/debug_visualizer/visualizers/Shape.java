@@ -13,6 +13,7 @@ import java.util.function.Function;
 /* Created by Conor on 02.10.2024 */
 public class Shape {
 
+    private static final double POINT_SIZE = 0.1;
     private static final double PLANE_DIR_DIFF_THRESHOLD = 0.01f;           // Used to determine when the direction should no longer affect the calculation
     private static final Vec STD_PLANE_DIR = new Vec(0, 0, 1);    // Dir plane should face wehen "spawned" in
 
@@ -30,21 +31,39 @@ public class Shape {
     public static Shape createPoint(final @NotNull Vec pos, final @NotNull ImplOptions<?>... options) {
         return new Shape(
                 options,
-                (vis) -> List.of(vis.createArea(pos.sub(0.1), pos.add(0.1)))
+                (vis) -> List.of(vis.createArea(
+                        pos.sub(POINT_SIZE / 2), new Vec(POINT_SIZE),
+                        Direction.UP.vec(), 0
+                ))
         );
     }
 
     public static Shape createBlock(final @NotNull Vec position, final @Nullable ImplOptions<?>... options) {
         return new Shape(
                 options,
-                (vis) -> List.of(vis.createBlock(position))
+                (vis) -> List.of(vis.createArea(
+                        position.add(0.5, 0, 0.5), Vec.ONE,
+                        Direction.UP.vec(), 0
+                ))
         );
     }
 
-    public static Shape createArea(final @NotNull Vec cornerA, final @NotNull Vec cornerB, final @Nullable ImplOptions<?>... options) {
+    public static Shape createBlockArea(final @NotNull Vec cornerA, final @NotNull Vec cornerB, final @Nullable ImplOptions<?>... options) {
+        final Vec ab = cornerB.sub(cornerA);
         return new Shape(
                 options,
-                (vis) -> List.of(vis.createArea(cornerA, cornerB))
+                (vis) -> List.of(vis.createArea(
+                        ab.div(2).add(cornerA), ab.abs(),
+                        Direction.UP.vec(), 0
+                ))
+        );
+    }
+
+    public static Shape createArea(final @NotNull Vec bottomCenter, final @NotNull Vec dimensions, final @NotNull Vec dir, final double angle,
+                                   final @Nullable ImplOptions<?>... options) {
+        return new Shape(
+                options,
+                (vis) -> List.of(vis.createArea(bottomCenter, dimensions, dir, angle))
         );
     }
 

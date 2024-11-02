@@ -20,17 +20,12 @@ public class EmptyVisualizer extends DebugVisualizer {
     };
 
     @Override
-    public VisualizerElement createBlock(@NotNull Vec position) {
+    public VisualizerElement createArea(@NotNull Vec bottomCenter, @NotNull Vec dim, @NotNull Vec dir, double angle) {
         return EMPTY;
     }
 
     @Override
-    public VisualizerElement createArea(@NotNull Vec cornerA, @NotNull Vec cornerB) {
-        return EMPTY;
-    }
-
-    @Override
-    protected VisualizerElement createPlane(@NotNull Vec cornerA, @NotNull Vec cornerB, @NotNull Vec cornerC, @NotNull Vec cornerD, double rot) {
+    public VisualizerElement createPlane(@NotNull Vec cornerA, @NotNull Vec cornerB, @NotNull Vec cornerC, @NotNull Vec cornerD, double rot) {
         return EMPTY;
     }
 

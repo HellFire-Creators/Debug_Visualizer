@@ -7,23 +7,13 @@ import org.jetbrains.annotations.NotNull;
 public abstract class DebugVisualizer {
 
     /**
-     * Creates a block marker at the specified position.
-     *
-     * @param position the position at which the block marker should be drawn
-     * @return a VisualizerElement representing the block marker
-     */
-    public VisualizerElement createBlock(final @NotNull Vec position) {
-        return createArea(position, position.add(1));
-    }
-
-    /**
      * Creates an area marker between two specified corners.
      *
      * @param cornerA  the first corner of the area
      * @param cornerB  the second corner of the area
      * @return a VisualizerElement representing the area marker
      */
-    public abstract VisualizerElement createArea(final @NotNull Vec cornerA, final @NotNull Vec cornerB);
+    public abstract VisualizerElement createArea(final @NotNull Vec bottomCenter, final @NotNull Vec dim, final @NotNull Vec dir, final double angle);
 
     /**
      * Creates a plane centered on a point facing a specified direction.
@@ -40,7 +30,7 @@ public abstract class DebugVisualizer {
      * If the plane is facing up/down-wards, then following holds: <br>
      * - a.z = b.z < c.z = d.z
      */
-    protected abstract VisualizerElement createPlane(Vec a, Vec b, Vec c, Vec d, double rot);
+    public abstract VisualizerElement createPlane(Vec a, Vec b, Vec c, Vec d, double rot);
 
     /**
      * Creates a line between two specified positions.

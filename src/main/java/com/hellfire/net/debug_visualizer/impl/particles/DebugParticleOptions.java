@@ -11,7 +11,7 @@ import org.jetbrains.annotations.NotNull;
 public class DebugParticleOptions extends ImplOptions<DebugParticleOptions> {
 
     private DebugColor color    = DebugColor.getRandomColor();
-    private double density      = 0.5f;  // # of particles per distance (0.5 => 2 particles per block)
+    private double density      = 0.2f;  // # of particles per distance (0.2 => 5 particles per block)
     private double fillDensity  = 0.5f;  // Doesn't work for everything though
     private Particle particle   = Particle.DUST;
 

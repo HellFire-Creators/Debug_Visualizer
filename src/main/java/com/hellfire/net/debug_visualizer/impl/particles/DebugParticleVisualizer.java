@@ -1,8 +1,13 @@
 package com.hellfire.net.debug_visualizer.impl.particles;
 
+import com.hellfire.net.debug_visualizer.MathUtil;
+import com.hellfire.net.debug_visualizer.VisualSupervisor;
+import com.hellfire.net.debug_visualizer.options.DebugColor;
 import com.hellfire.net.debug_visualizer.options.ImplOptions;
 import com.hellfire.net.debug_visualizer.visualizers.DebugVisualizer;
+import com.hellfire.net.debug_visualizer.visualizers.Shape;
 import com.hellfire.net.debug_visualizer.visualizers.VisualizerElement;
+import com.hellfire.net.debug_visualizer.visualizers.VisualizerElementCollection;
 import net.minestom.server.MinecraftServer;
 import net.minestom.server.coordinate.Vec;
 import net.minestom.server.entity.Player;
@@ -10,6 +15,7 @@ import net.minestom.server.network.packet.server.play.ParticlePacket;
 import net.minestom.server.particle.Particle;
 import net.minestom.server.timer.Task;
 import net.minestom.server.timer.TaskSchedule;
+import net.minestom.server.utils.Direction;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -22,38 +28,74 @@ public class DebugParticleVisualizer extends DebugVisualizer {
     private static final int PARTICLE_LIFE_DURATION = 5;    // Time until new particles are spawned, in ticks
 
     @Override
-    public VisualizerElement createArea(@NotNull Vec a, @NotNull Vec b) {
+    public VisualizerElement createArea(@NotNull Vec bottomCenter, @NotNull Vec dim, @NotNull Vec dir, double angle) {
+        final Vec STD_AREA_DIR = Direction.UP.vec();
+        final double hW = dim.x() / 2, hL = dim.z() / 2;
+        final double height = dim.y();
+
+        // Calc bottom points
+        // ALL RELATIVE TO Vec.ZERO!
+        // Not facing dir or rotated:
+        final Vec sA = new Vec(-hW, 0, -hL), sB = new Vec(hW, 0, -hL);
+        final Vec sC = new Vec(hW, 0, hL), sD = new Vec(-hW, 0, hL);
+
+        // Make them face dir
+        final double normRot = STD_AREA_DIR.angle(dir);
+        final Vec normRotAxis = (dir.abs().equals(STD_AREA_DIR)) ? STD_AREA_DIR : STD_AREA_DIR.cross(dir).normalize();
+        final Vec dA = sA.rotateAroundAxis(normRotAxis, normRot), dB = sB.rotateAroundAxis(normRotAxis, normRot);
+        final Vec dC = sC.rotateAroundAxis(normRotAxis, normRot), dD = sD.rotateAroundAxis(normRotAxis, normRot);
+
+        // Determine rotation correction factor
+        // The prior rotation messes up the positioning of the corners, so we have to correct them
+        final Vec bbc = dB.sub(dA).div(2).add(dA);
+        final Vec tbc = MathUtil.planeLineIntersection(
+                Vec.ZERO, dA, dB,
+                dir, STD_AREA_DIR
+        );
+
+        final double correctionRot = (dir.abs().equals(STD_AREA_DIR)) ? 0 : bbc.normalize().angle(tbc.normalize());
+
+        // In this step, we also apply the actual/final rotation
+        final Vec fA = dA.rotateAroundAxis(dir, Math.toRadians(angle)).add(bottomCenter);
+        final Vec fB = dB.rotateAroundAxis(dir, Math.toRadians(angle)).add(bottomCenter);
+        final Vec fC = dC.rotateAroundAxis(dir, Math.toRadians(angle)).add(bottomCenter);
+        final Vec fD = dD.rotateAroundAxis(dir, Math.toRadians(angle)).add(bottomCenter);
+
+        // Calc other side
+        final Vec fE = fA.add(dir.mul(height)), fF = fB.add(dir.mul(height));
+        final Vec fG = fC.add(dir.mul(height)), fH = fD.add(dir.mul(height));
+
         return new VisualizerElement() {
             private Task task;
 
             @Override
-            protected void draw(@NotNull Player player, ImplOptions<?> option) {
-                final DebugParticleOptions op = (DebugParticleOptions) option;
-                final Vec o = b.sub(a);
-
+            protected void draw(@NotNull Player player, ImplOptions<?> options) {
+                final DebugParticleOptions op = (DebugParticleOptions) options;
                 final ParticlePacket[] particles = Arrays.stream(new Vec[][]{
                                 // frame
-                                calcParticlePositions(a, a.add(o.x(), 0, 0), op),
-                                calcParticlePositions(a, a.add(0, o.y(), 0), op),
-                                calcParticlePositions(a, a.add(0, 0, o.z()), op),
-                                calcParticlePositions(b, b.sub(o.x(), 0, 0), op),
-                                calcParticlePositions(b, b.sub(0, o.y(), 0), op),
-                                calcParticlePositions(b, b.sub(0, 0, o.z()), op),
-                                calcParticlePositions(a.add(0, o.y(), 0), a.add(o.x(), o.y(), 0), op),
-                                calcParticlePositions(a.add(0, o.y(), 0), a.add(0, o.y(), o.z()), op),
-                                calcParticlePositions(b.sub(0, o.y(), 0), b.sub(o.x(), o.y(), 0), op),
-                                calcParticlePositions(b.sub(0, o.y(), 0), b.sub(0, o.y(), o.z()), op),
-                                calcParticlePositions(a.add(o.x(), 0, 0), a.add(o.x(), o.y(), 0), op),
-                                calcParticlePositions(a.add(0, 0, o.z()), a.add(0, o.y(), o.z()), op),
+                                calcParticlePositions(fA, fB, op),
+                                calcParticlePositions(fB, fC, op),
+                                calcParticlePositions(fC, fD, op),
+                                calcParticlePositions(fD, fA, op),
+
+                                calcParticlePositions(fE, fF, op),
+                                calcParticlePositions(fF, fG, op),
+                                calcParticlePositions(fG, fH, op),
+                                calcParticlePositions(fH, fE, op),
+
+                                calcParticlePositions(fA, fE, op),
+                                calcParticlePositions(fB, fF, op),
+                                calcParticlePositions(fC, fG, op),
+                                calcParticlePositions(fD, fH, op),
 
                                 // fill
-                                calcPlanePositions(a, a.add(o.x(), 0, 0), a.add(o.x(), o.y(), 0), a.add(0, o.y(), 0), op),
-                                calcPlanePositions(a, a.add(0, 0, o.z()), a.add(0, o.y(), o.z()), a.add(0, o.y(), 0), op),
-                                calcPlanePositions(a, a.add(o.x(), 0, 0), a.add(o.x(), 0, o.z()), a.add(0, 0, o.z()), op),
+                                calcPlanePositions(fA, fB, fC, fD, op),
+                                calcPlanePositions(fE, fF, fG, fH, op),
 
-                                calcPlanePositions(b, b.add(-o.x(), 0, 0), b.add(-o.x(), -o.y(), 0), b.add(0, -o.y(), 0), op),
-                                calcPlanePositions(b, b.add(0, 0, -o.z()), b.add(0, -o.y(), -o.z()), b.add(0, -o.y(), 0), op),
-                                calcPlanePositions(b, b.add(-o.x(), 0, 0), b.add(-o.x(), 0, -o.z()), b.add(0, 0, -o.z()), op),
+                                calcPlanePositions(fA, fE, fF, fB, op),
+                                calcPlanePositions(fB, fF, fG, fC, op),
+                                calcPlanePositions(fC, fG, fH, fD, op),
+                                calcPlanePositions(fD, fH, fE, fA, op),
                         })
                         .flatMap(Arrays::stream)
                         .map((vec) -> convertToPacket(vec, op))
@@ -71,7 +113,7 @@ public class DebugParticleVisualizer extends DebugVisualizer {
     }
 
     @Override
-    protected VisualizerElement createPlane(Vec a, Vec b, Vec c, Vec d, double rot) {
+    public VisualizerElement createPlane(Vec a, Vec b, Vec c, Vec d, double rot) {
         return new VisualizerElement() {
             private Task task;
 
