@@ -1,4 +1,4 @@
-package com.hellfire.net.debug_visualizer.visualizers.impl;
+package com.hellfire.net.debug_visualizer.impl;
 
 import com.hellfire.net.debug_visualizer.options.ImplOptions;
 import com.hellfire.net.debug_visualizer.transformations.ObjTransformation;
