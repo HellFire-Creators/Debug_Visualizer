@@ -1,6 +1,7 @@
 package com.hellfire.net.debug_visualizer.impl.debugmod;
 
 import com.hellfire.net.debug_visualizer.options.ImplOptions;
+import com.hellfire.net.debug_visualizer.transformations.ObjTransformation;
 import com.hellfire.net.debug_visualizer.visualizers.DebugVisualizer;
 import com.hellfire.net.debug_visualizer.visualizers.VisualizerElement;
 import com.mattworzala.debug.DebugMessage;
@@ -73,12 +74,12 @@ public class DebugModVisualizer extends DebugVisualizer {
     }
 
     @Override
-    public VisualizerElement createArea(@NotNull Vec bottomCenter, @NotNull Vec dim, @NotNull Vec dir, double angle) {
+    public VisualizerElement createArea(@NotNull Vec cornerA, @NotNull Vec cornerB, @NotNull ObjTransformation trans) {
         return null;
     }
 
     @Override
-    public VisualizerElement createPlane(Vec a, Vec b, Vec c, Vec d, double rot) {
+    public VisualizerElement createPlane(Vec cornerA, Vec cornerB, Vec cornerC, Vec cornerD, ObjTransformation trans) {
         final NamespaceID ns = getRandomNamespaceID("plane");
         return new VisualizerElement() {
 
@@ -86,10 +87,10 @@ public class DebugModVisualizer extends DebugVisualizer {
             protected void draw(@NotNull Player player, ImplOptions<?> options) {
                 final DebugModOptions op = (DebugModOptions) options;
                 final QuadShape plane = Shape.quad()
-                        .a(a)
-                        .b(b)
-                        .c(c)
-                        .d(d)
+                        .a(cornerA)
+                        .b(cornerB)
+                        .c(cornerC)
+                        .d(cornerD)
                         .color(op.getPrimaryColor().getHexCode(op.getPrimaryAlpha()))
                         .build();
 

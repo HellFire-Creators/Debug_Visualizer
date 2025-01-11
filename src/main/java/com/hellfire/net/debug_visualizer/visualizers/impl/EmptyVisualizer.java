@@ -1,6 +1,7 @@
 package com.hellfire.net.debug_visualizer.visualizers.impl;
 
 import com.hellfire.net.debug_visualizer.options.ImplOptions;
+import com.hellfire.net.debug_visualizer.transformations.ObjTransformation;
 import com.hellfire.net.debug_visualizer.visualizers.DebugVisualizer;
 import com.hellfire.net.debug_visualizer.visualizers.VisualizerElement;
 import net.minestom.server.coordinate.Vec;
@@ -20,12 +21,12 @@ public class EmptyVisualizer extends DebugVisualizer {
     };
 
     @Override
-    public VisualizerElement createArea(@NotNull Vec bottomCenter, @NotNull Vec dim, @NotNull Vec dir, double angle) {
+    public VisualizerElement createArea(@NotNull Vec cornerA, @NotNull Vec cornerB, @NotNull ObjTransformation trans) {
         return EMPTY;
     }
 
     @Override
-    public VisualizerElement createPlane(@NotNull Vec cornerA, @NotNull Vec cornerB, @NotNull Vec cornerC, @NotNull Vec cornerD, double rot) {
+    public VisualizerElement createPlane(@NotNull Vec cornerA, @NotNull Vec cornerB, @NotNull Vec cornerC, @NotNull Vec cornerD, ObjTransformation trans) {
         return EMPTY;
     }
 
