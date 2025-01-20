@@ -84,4 +84,11 @@ public class DebugParticleOptions extends ImplOptions<DebugParticleOptions> {
         return this;
     }
 
+    public DebugColor getColor() {
+        return hasOverrideColor() ? getOverrideColor() : this.color;
+    }
+
+    public Particle getParticle() {
+        return hasOverrideColor() ? Particle.DUST : this.particle;
+    }
 }

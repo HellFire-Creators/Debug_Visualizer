@@ -41,6 +41,8 @@ public class DebugParticleVisualizer extends DebugVisualizer {
         final Vec[] points = new ObjTransformation()
                 .translate(min.sub(mid.div(2)))
                 .add((trans == null) ? new ObjTransformation() : trans)
+                .matrixFromOperations()
+                .affine()
                 .transformPoints(corners);
 
         final Vec a = points[0], b = points[1], c = points[2], d = points[3];
@@ -154,7 +156,7 @@ public class DebugParticleVisualizer extends DebugVisualizer {
     }
 
     @Override
-    public Class<? extends ImplOptions<?>> getOptionsClass() {
+    public @NotNull Class<? extends ImplOptions<?>> getOptionsClass() {
         return DebugParticleOptions.class;
     }
 

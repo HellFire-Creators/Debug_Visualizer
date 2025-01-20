@@ -72,7 +72,11 @@ public final class Shape {
                 new Vec(-hw, 0, hh),
         };
 
-        final Vec[] rotatedPoints = new ObjTransformation().translate(center).add(trans).transformPoints(initPoints);
+        final Vec[] rotatedPoints = new ObjTransformation()
+                .translate(center)
+                .add(trans)
+                .matrixFromOperations()
+                .transformPoints(initPoints);
 
         return new Shape(
                 options,

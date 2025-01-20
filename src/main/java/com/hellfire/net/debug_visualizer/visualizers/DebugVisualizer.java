@@ -45,5 +45,6 @@ public abstract class DebugVisualizer {
      */
     public abstract VisualizerElement createLine(final @NotNull Vec posA, final @NotNull Vec posB);
 
+    @NotNull
     public abstract Class<? extends ImplOptions<?>> getOptionsClass();
 }

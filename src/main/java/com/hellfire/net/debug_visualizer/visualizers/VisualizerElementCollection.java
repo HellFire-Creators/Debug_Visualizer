@@ -26,7 +26,7 @@ public class VisualizerElementCollection {
     public void draw(final @NotNull VisualSupervisor supervisor) {
         elements.forEach((e) -> {
             final Class<? extends ImplOptions<?>> optionsClass = supervisor.getVisualizer().getOptionsClass();
-            final ImplOptions<?> option = e.optionsMap.computeIfAbsent(optionsClass, (k) -> createStdOption(optionsClass));
+            final ImplOptions<?> option = e.optionsMap.computeIfAbsent(optionsClass, ImplOptions::getStdFromClass);
 
             if (option == null) throw new RuntimeException("Could not instantiate a default visualizer option for " + optionsClass.getSimpleName());
             e.visFunc.apply(supervisor.getVisualizer()).forEach(v -> v.draw(supervisor.getPlayer(),  option));
@@ -51,21 +51,6 @@ public class VisualizerElementCollection {
                 .filter((c) -> c instanceof SingleVisualizerElementCollection)
                 .filter((s) -> ((SingleVisualizerElementCollection) s).getName().equals(key))
                 .forEach((s) -> s.clear(supervisor));
-    }
-
-    // Create std options instance, in case no option was defined
-    @Nullable
-    private static ImplOptions<?> createStdOption(Class<? extends ImplOptions<?>> implClass) {
-        try {
-            final Optional<Constructor<?>> opCon = Arrays.stream(implClass.getDeclaredConstructors())
-                    .filter(c -> c.getParameterCount() == 0)
-                    .findFirst();
-            if (opCon.isEmpty()) return null;   // Conor-02.10.2024: HOW?!
-            final Constructor<?> con = opCon.get();
-            con.setAccessible(true);
-            return ((ImplOptions<?>) con.newInstance()).getStd();
-        }
-        catch(Exception e) { return null; }
     }
 
     ///////////////////////////////////////////////////////////////////////////

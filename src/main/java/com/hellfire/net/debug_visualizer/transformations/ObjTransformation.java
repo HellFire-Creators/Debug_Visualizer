@@ -5,10 +5,6 @@ import net.minestom.server.utils.Direction;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
-import java.util.concurrent.ConcurrentLinkedQueue;
-
-import static java.lang.Math.cos;
-import static java.lang.Math.sin;
 
 /* Created by Conor on 10.01.2025 */
 public class ObjTransformation {
@@ -32,8 +28,8 @@ public class ObjTransformation {
         return this;
     }
 
-    public ObjTransformation scale(double scaleX, double scaleY, double scaleZ) {
-        operations.add(new TransformationOperation.Scale(scaleX, scaleY, scaleZ));
+    public ObjTransformation scale(final @NotNull Vec scale) {
+        operations.add(new TransformationOperation.Scale(scale.x(), scale.y(), scale.z()));
         return this;
     }
 
@@ -72,14 +68,29 @@ public class ObjTransformation {
         return this;
     }
 
+    public ObjTransformation rotateX(double angle) {
+        operations.add(new TransformationOperation.RotateX(angle));
+        return this;
+    }
+
+    public ObjTransformation rotateY(double angle) {
+        operations.add(new TransformationOperation.RotateY(angle));
+        return this;
+    }
+
+    public ObjTransformation rotateZ(double angle) {
+        operations.add(new TransformationOperation.RotateZ(angle));
+        return this;
+    }
+
     public ObjTransformation faceTowards(final @NotNull Vec dir) {
         operations.add(new TransformationOperation.FaceDirection(dir));
         return this;
     }
 
     public ObjTransformation faceAndRotate(final @NotNull Vec dir, double angle) {
-        operations.add(new TransformationOperation.FaceDirection(dir));
-        operations.add(new TransformationOperation.Rotation(Direction.UP.vec(), angle));
+        faceTowards(dir);
+        rotate(Direction.UP.vec(), angle);
         return this;
     }
 
@@ -88,21 +99,8 @@ public class ObjTransformation {
         return this;
     }
 
-    private Vec transform(final Vec v, final Matrix m) {
-        final double x = v.x(), y = v.y(), z = v.z();
-
-        return new Vec(
-                m.m00 * x + m.m01 * y + m.m02 * z + m.m03,
-                m.m10 * x + m.m11 * y + m.m12 * z + m.m13,
-                m.m20 * x + m.m21 * y + m.m22 * z + m.m23
-        );
-    }
-
-    public Vec[] transformPoints(final @NotNull Vec @NotNull ... points) {
-        final Matrix m = matrixFromOperations();
-        return Arrays.stream(points)
-                .map((v) -> transform(v, m))
-                .toArray(Vec[]::new);
+    public List<TransformationOperation> getOperations() {
+        return Collections.unmodifiableList(new LinkedList<>(operations));
     }
 
     public Matrix matrixFromOperations() {
@@ -116,4 +114,5 @@ public class ObjTransformation {
     public String toString() {
         return String.format("ObjTransformation[transforms=%s]", operations);
     }
+
 }

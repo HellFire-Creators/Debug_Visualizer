@@ -1,10 +1,13 @@
 package com.hellfire.net.debug_visualizer.impl;
 
 import com.hellfire.net.debug_visualizer.VisualSupervisor;
+import com.hellfire.net.debug_visualizer.impl.display.DebugDisplayOptions;
+import com.hellfire.net.debug_visualizer.impl.display.DebugDisplayVisualizer;
 import com.hellfire.net.debug_visualizer.impl.particles.DebugParticleOptions;
 import com.hellfire.net.debug_visualizer.impl.particles.DebugParticleVisualizer;
 import com.hellfire.net.debug_visualizer.options.DebugColor;
 import com.hellfire.net.debug_visualizer.transformations.ObjTransformation;
+import com.hellfire.net.debug_visualizer.visualizers.DebugVisualizer;
 import com.hellfire.net.debug_visualizer.visualizers.Shape;
 import com.hellfire.net.debug_visualizer.visualizers.VisualizerElementCollection;
 import net.minestom.server.MinecraftServer;
@@ -25,6 +28,8 @@ import static java.lang.Math.PI;
 
 public class DebugParticleVisualizerTest {
 
+    private static final DebugVisualizer VIS = new DebugDisplayVisualizer();
+
     public static void main(String[] args) {
         setupServer();
     }
@@ -41,6 +46,9 @@ public class DebugParticleVisualizerTest {
                 unit.modifier().fillHeight(0, 40, Block.GRASS_BLOCK)
         );
         instanceContainer.setTimeRate(0);
+        for (int y = 40; y >= 0; y--) {
+            instanceContainer.setBlock(0, y, 0, Block.AIR);
+        }
 
         // Start the server on port 25565
         minecraftServer.start("0.0.0.0", 25565);
@@ -49,10 +57,12 @@ public class DebugParticleVisualizerTest {
             final Player player = event.getPlayer();
             player.setGameMode(GameMode.CREATIVE);
             event.setSpawningInstance(instanceContainer);
-            player.setRespawnPoint(new Pos(3, 40.2, -2.2));
+            player.setRespawnPoint(new Pos(-2.2, 40.2, -2.2));
 
             MinecraftServer.getSchedulerManager().scheduleTask(
-                    () -> runTests(player, instanceContainer),
+                    () -> {
+                        runTests(player, instanceContainer);
+                    },
                     TaskSchedule.seconds(1),
                     TaskSchedule.stop()
             );
@@ -60,25 +70,11 @@ public class DebugParticleVisualizerTest {
     }
 
     private static void runTests(Player player, Instance world) {
-        spawnLines(player, world);
-        spawnPoints(player, world);
+//        spawnLines(player, world);
+//        spawnPoints(player, world);
         spawnBlocks(player, world);
-        spawnAreas(player, world);
-        spawnPlanes(player, world);
-
-        // Dev tests
-        final Vec dir = new Vec(1, 1, 1);
-        final Vec center = new Vec(8.5, 43, -1.5);
-        final VisualizerElementCollection.Builder builder = VisualizerElementCollection.builder();
-        builder.addElement(Shape.createPlane(
-                1, 1,
-                center, new ObjTransformation().faceTowards(dir)
-        ));
-
-        builder.addElement(Shape.createLine(
-                        center, center.add(dir.mul(10)), DebugParticleOptions.createWithColor(DebugColor.GOLD)
-                ))
-                .build().draw(VisualSupervisor.STD.create(player, new DebugParticleVisualizer()));
+//        spawnAreas(player, world);
+//        spawnPlanes(player, world);
     }
 
     ///////////////////////////////////////////////////////////////////////////
@@ -99,15 +95,58 @@ public class DebugParticleVisualizerTest {
         // Spawn in the middle
         b.addElement(Shape.createPoint(new Vec(6.5, 41, 3.5), DebugParticleOptions.createWithColor(DebugColor.GOLD)));
 
-        b.build().draw(VisualSupervisor.STD.create(p, new DebugParticleVisualizer()));
+        b.build().draw(VisualSupervisor.STD.create(p, VIS));
     }
 
     private static void spawnBlocks(Player p, Instance w) {
-        w.setBlock(new Vec(2, 40, 3), Block.STONE);
+        w.setBlock(new Vec(2, 40, -5), Block.STONE);
 
-        VisualizerElementCollection.builder()
-                .addElement(Shape.createBlock(new Vec(2, 41, 3), null))
-                .build().draw(VisualSupervisor.STD.create(p, new DebugParticleVisualizer()));
+        w.setBlock(new Vec(2, 40, -3), Block.STONE);
+        w.setBlock(new Vec(4, 40, -3), Block.STONE);
+        w.setBlock(new Vec(2, 43, -3), Block.LANTERN);
+        w.setBlock(new Vec(4, 41, -3), Block.LANTERN);
+
+        w.setBlock(new Vec(2, 40, -1), Block.STONE);
+        w.setBlock(new Vec(4, 40, -1), Block.STONE);
+
+        w.setBlock(new Vec(2, 40, 1), Block.STONE);
+        w.setBlock(new Vec(4, 40, 1), Block.STONE);
+
+        w.setBlock(new Vec(2, 40, 3), Block.STONE);
+        w.setBlock(new Vec(4, 40, 3), Block.STONE);
+
+        fillArea(new Vec(2, 40, 5), new Vec(3, 40, 6), Block.STONE, w);
+        fillArea(new Vec(5, 40, 5), new Vec(5, 40, 6), Block.STONE, w);
+        fillArea(new Vec(7, 40, 5), new Vec(7, 40, 6), Block.STONE, w);
+        fillArea(new Vec(9, 40, 4), new Vec(10, 40, 4), Block.STONE, w);
+        fillArea(new Vec(9, 40, 6), new Vec(10, 40, 6), Block.STONE, w);
+
+        final VisualizerElementCollection.Builder builder = VisualizerElementCollection.builder();
+
+        builder.addElement(Shape.createBlock(new Vec(2, 41, -5), new ObjTransformation().rotateY(PI / 4).rotateX(PI / 4)));
+
+        builder.addElement(Shape.createBlock(new Vec(2, 42, -3), new ObjTransformation().faceTowards(Direction.UP.vec()).translate(new Vec(0, 1, 0))));
+        builder.addElement(Shape.createBlock(new Vec(4, 42, -3), new ObjTransformation().faceTowards(Direction.DOWN.vec()).translate(new Vec(0, 1, 0))));
+
+        builder.addElement(Shape.createBlock(new Vec(2, 41, -1), new ObjTransformation().faceTowards(Direction.NORTH.vec())));
+        builder.addElement(Shape.createBlock(new Vec(4, 41, -1), new ObjTransformation().faceTowards(Direction.SOUTH.vec())));
+
+//        builder.addElement(Shape.createBlock(new Vec(2, 41, 1), new ObjTransformation().faceTowards(Direction.EAST.vec())));
+//        builder.addElement(Shape.createBlock(new Vec(4, 41, 1), new ObjTransformation().faceTowards(Direction.WEST.vec())));
+//
+//        builder.addElement(Shape.createBlock(new Vec(2, 41, 3), new ObjTransformation().faceTowards(new Vec(1, 1, 1))));
+//        builder.addElement(Shape.createBlock(new Vec(4, 41, 3), new ObjTransformation().faceTowards(new Vec(1, 1, 1).neg())));
+//
+//        builder.addElement(Shape.createBlock(new Vec(2, 41, 5), new ObjTransformation().faceTowards(new Vec(1, 1, 1)).translate(new Vec(0, 0, -1))));
+//
+//        builder.addElement(Shape.createBlock(new Vec(5, 41, 5), new ObjTransformation().faceTowards(new Vec(0, 1, 1)).translate(new Vec(0, 0, -1))));
+//        builder.addElement(Shape.createBlock(new Vec(7, 43, 6), new ObjTransformation().faceTowards(new Vec(0, -1, -1)).translate(new Vec(0, 0, -1))));
+//
+//        builder.addElement(Shape.createBlock(new Vec(9, 41, 4), new ObjTransformation().faceTowards(new Vec(1, 1, 0)).translate(new Vec(0, 1, 0))));
+//        builder.addElement(Shape.createBlock(new Vec(10, 43, 6), new ObjTransformation().faceTowards(new Vec(-1, -1, 0)).translate(new Vec(0, 1, 0))));
+
+        builder.build().draw(VisualSupervisor.STD.create(p, VIS));
+        builder.build().draw(VisualSupervisor.STD.create(p, new DebugParticleVisualizer()));
     }
 
     private static void spawnAreas(Player p, Instance w) {
@@ -148,7 +187,7 @@ public class DebugParticleVisualizerTest {
         ));
         b.addElement(Shape.createArea(
                 new Vec(-8.5, 41, 10), new Vec(-7.5, 43, 7),
-                new ObjTransformation().rotate(Direction.UP.vec(), PI/ 8)
+                new ObjTransformation().rotate(Direction.UP.vec(), PI / 8)
         ));
 
         b.addElement(Shape.createArea(
@@ -166,7 +205,7 @@ public class DebugParticleVisualizerTest {
         ));
 
 
-        b.build().draw(VisualSupervisor.STD.create(p, new DebugParticleVisualizer()));
+        b.build().draw(VisualSupervisor.STD.create(p, VIS));
     }
 
     private static void spawnPlanes(Player p, Instance w) {
@@ -193,11 +232,11 @@ public class DebugParticleVisualizerTest {
         b.addElement(Shape.createPlane(1, 1, new Vec(0.5, 41, -9.5), new ObjTransformation().faceTowards(Direction.DOWN.vec()).rotate(Direction.UP.vec(), 0)));
         b.addElement(Shape.createPlane(1, 1, new Vec(2.5, 41, -9.5), new ObjTransformation().faceTowards(Direction.DOWN.vec()).rotate(Direction.UP.vec(), PI / 4)));
 
-        b.addElement(Shape.createPlane(1, 1, new Vec(0.5, 41.5, -11.5), new ObjTransformation().faceTowards(Direction.SOUTH.vec()) .rotate(Direction.UP.vec(), 0)));
-        b.addElement(Shape.createPlane(1, 1, new Vec(2.5, 41.5, -11.5), new ObjTransformation().faceTowards(Direction.SOUTH.vec()) .rotate(Direction.UP.vec(), PI / 4)));
+        b.addElement(Shape.createPlane(1, 1, new Vec(0.5, 41.5, -11.5), new ObjTransformation().faceTowards(Direction.SOUTH.vec()).rotate(Direction.UP.vec(), 0)));
+        b.addElement(Shape.createPlane(1, 1, new Vec(2.5, 41.5, -11.5), new ObjTransformation().faceTowards(Direction.SOUTH.vec()).rotate(Direction.UP.vec(), PI / 4)));
 
-        b.addElement(Shape.createPlane(1, 1, new Vec(0.5, 41.5, -13.5), new ObjTransformation().faceTowards(Direction.WEST.vec()) .rotate(Direction.UP.vec(), 0)));
-        b.addElement(Shape.createPlane(1, 1, new Vec(2.5, 41.5, -13.5), new ObjTransformation().faceTowards(Direction.WEST.vec()) .rotate(Direction.UP.vec(), PI / 4)));
+        b.addElement(Shape.createPlane(1, 1, new Vec(0.5, 41.5, -13.5), new ObjTransformation().faceTowards(Direction.WEST.vec()).rotate(Direction.UP.vec(), 0)));
+        b.addElement(Shape.createPlane(1, 1, new Vec(2.5, 41.5, -13.5), new ObjTransformation().faceTowards(Direction.WEST.vec()).rotate(Direction.UP.vec(), PI / 4)));
 
         // Conor-02.11.2024
         // Todo:
@@ -210,7 +249,7 @@ public class DebugParticleVisualizerTest {
         b.addElement(Shape.createPlane(1, 2, new Vec(8, 41, -8), new ObjTransformation().faceTowards(Direction.UP.vec()).rotate(Direction.UP.vec(), PI / 4).scale(2)));
 
 
-        b.build().draw(VisualSupervisor.STD.create(p, new DebugParticleVisualizer()));
+        b.build().draw(VisualSupervisor.STD.create(p, VIS));
     }
 
     private static void spawnLines(Player p, Instance w) {
@@ -222,17 +261,25 @@ public class DebugParticleVisualizerTest {
         w.setBlock(-8, 40, -9, Block.STONE);
         w.setBlock(-9, 40, -10, Block.STONE);
 
+        final Vec a = new Vec(-2.5, 41, -7.5), c = new Vec(-2.5, 43, -7.5);
+
+        VisualizerElementCollection.builder()
+                .addElement(Shape.createPoint(a))
+                .addElement(Shape.createPoint(c))
+                .build().draw(VisualSupervisor.STD.create(p, new DebugParticleVisualizer()));
+
         VisualizerElementCollection.Builder b = VisualizerElementCollection.builder();
 
         // Dir lines
-        b.addElement(Shape.createLine(new Vec(-2.5, 41, -7.5), new Vec(-4.3, 41, -7.5)));
-        b.addElement(Shape.createLine(new Vec(-3.5, 41, -9.5), new Vec(-3.5, 41, -11.5)));
-        b.addElement(Shape.createLine(new Vec(-3.5, 41, -13.5), new Vec(-3.5, 43, -13.5)));
+        b.addElement(Shape.createLine(a, c,
+                DebugDisplayOptions.createWithGlow(true).withState(DebugDisplayOptions.State.GLASS).withViewRange(300)));
+//        b.addElement(Shape.createLine(new Vec(-3.5, 41, -9.5), new Vec(-3.5, 41, -11.5)));
+//        b.addElement(Shape.createLine(new Vec(-3.5, 41, -13.5), new Vec(-3.5, 43, -13.5)));
 
         // Diag lines
-        b.addElement(Shape.createLine(new Vec(-6.5, 41, -7.5), new Vec(-8.5, 41, -9.5)));
+//        b.addElement(Shape.createLine(new Vec(-6.5, 41, -7.5), new Vec(-8.5, 41, -9.5)));
 
-        b.build().draw(VisualSupervisor.STD.create(p, new DebugParticleVisualizer()));
+        b.build().draw(VisualSupervisor.STD.create(p, VIS));
     }
 
     /*                    Helper funcs                    */

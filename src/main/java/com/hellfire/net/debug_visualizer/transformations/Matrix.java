@@ -1,6 +1,9 @@
 package com.hellfire.net.debug_visualizer.transformations;
 
+import net.minestom.server.coordinate.Vec;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.Arrays;
 
 /* Created by Conor on 11.01.2025 */
 public class Matrix {
@@ -66,15 +69,54 @@ public class Matrix {
         );
     }
 
+    public Matrix multScalar(double scale) {
+        return new Matrix(
+                m00 * scale, m01 * scale, m02 * scale, m03 * scale,
+                m10 * scale, m11 * scale, m12 * scale, m13 * scale,
+                m20 * scale, m21 * scale, m22 * scale, m23 * scale,
+                m30 * scale, m31 * scale, m32 * scale, m33 * scale
+        );
+    }
+
+    public Matrix affine() {
+        return multScalar(1 / m33);
+    }
+
+    public Vec getTranslation() {
+        return new Vec(m03, m13, m23);
+    }
+
+    public Vec getScale() {
+        return new Vec(m00, m11, m22);
+    }
+
+    public Vec transform(final @NotNull Vec v) {
+        final double x = v.x(), y = v.y(), z = v.z();
+
+        return new Vec(
+                m00 * x + m01 * y + m02 * z + m03,
+                m10 * x + m11 * y + m12 * z + m13,
+                m20 * x + m21 * y + m22 * z + m23
+        );
+    }
+
+    public Vec[] transformPoints(final @NotNull Vec... vecs) {
+        return Arrays.stream(vecs)
+                .map(this::transform)
+                .toArray(Vec[]::new);
+    }
+
+
     @Override
+
     public String toString() {
         return String.format(
                 """
-                %.2f %.2f %.2f %.2f
-                %.2f %.2f %.2f %.2f
-                %.2f %.2f %.2f %.2f
-                %.2f %.2f %.2f %.2f
-                """,
+                        %.2f %.2f %.2f %.2f
+                        %.2f %.2f %.2f %.2f
+                        %.2f %.2f %.2f %.2f
+                        %.2f %.2f %.2f %.2f
+                        """,
                 m00, m01, m02, m03,
                 m10, m11, m12, m13,
                 m20, m21, m22, m23,

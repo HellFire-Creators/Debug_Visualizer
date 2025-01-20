@@ -36,7 +36,7 @@ public class EmptyVisualizer extends DebugVisualizer {
     }
 
     @Override
-    public Class<? extends ImplOptions<?>> getOptionsClass() {
+    public @NotNull Class<? extends ImplOptions<?>> getOptionsClass() {
         return EmptyOptions.class;
     }
 

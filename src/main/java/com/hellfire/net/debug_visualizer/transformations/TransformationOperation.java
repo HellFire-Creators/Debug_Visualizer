@@ -1,10 +1,10 @@
 package com.hellfire.net.debug_visualizer.transformations;
 
+import com.hellfire.net.debug_visualizer.MathUtil;
 import net.minestom.server.coordinate.Vec;
 import net.minestom.server.utils.Direction;
 
-import static java.lang.Math.cos;
-import static java.lang.Math.sin;
+import static java.lang.Math.*;
 
 /* Created by Conor on 11.01.2025 */
 public interface TransformationOperation {
@@ -102,17 +102,64 @@ public interface TransformationOperation {
 
     }
 
-    record FaceDirection(Vec dir) implements TransformationOperation {
-
-        public static final Vec DEFAULT = Direction.UP.vec();
+    record RotateX(double angle) implements TransformationOperation {
 
         @Override
         public Matrix transform() {
-            final boolean isSame = dir.abs().equals(DEFAULT);
-            final Vec rotationAxis = isSame ? dir : dir.cross(DEFAULT);
-            final double rotationAngle = isSame ? 0 : dir.angle(DEFAULT);
+            return new Matrix(
+                    1, 0, 0, 0,
+                    0, cos(angle), sin(angle), 0,
+                    0, -sin(angle), cos(angle), 0,
+                    0, 0, 0, 1
+            );
+        }
+    }
 
-            return new Rotation(rotationAxis, rotationAngle).transform();
+    record RotateY(double angle) implements TransformationOperation {
+
+        @Override
+        public Matrix transform() {
+            return new Matrix(
+                    cos(angle), 0, -sin(angle), 0,
+                    0, 1, 0, 0,
+                    sin(angle), 0, cos(angle), 0,
+                    0, 0, 0, 1
+            );
+        }
+    }
+
+    record RotateZ(double angle) implements TransformationOperation {
+
+        @Override
+        public Matrix transform() {
+            return new Matrix(
+                    cos(angle), sin(angle), 0, 0,
+                    -sin(angle), cos(angle), 0, 0,
+                    0, 0, 1, 0,
+                    0, 0, 0, 1
+            );
+        }
+    }
+
+    record FaceDirection(Vec direction) implements TransformationOperation {
+
+        @Override
+        // https://stackoverflow.com/a/4901243
+        public Matrix transform() {
+            final Vec dir = direction.normalize();
+
+            if (dir.equals(Direction.UP.vec()))     return new Matrix();
+            if (dir.equals(Direction.DOWN.vec()))   return new Rotation(new Vec(1, 0, 0), PI).transform();
+
+            final Vec forward = MathUtil.perpendicular(dir);
+            final Vec right = dir.cross(forward);
+
+            return new Matrix(
+                    forward.x(), dir.x(), right.x(), 0,
+                    forward.y(), dir.y(), right.y(), 0,
+                    forward.z(), dir.z(), right.z(), 0,
+                    0, 0, 0, 1
+            );
         }
     }
 
